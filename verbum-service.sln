@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "verbum-service", "verbum-service\verbum-service.csproj", "{5257DED4-B2DE-41C4-B4C5-195EC652CC60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37E8D7E9-C926-4EF1-925D-F2CCD2780365}
+	EndGlobalSection
+EndGlobal
