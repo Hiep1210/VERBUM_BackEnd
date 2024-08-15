@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace verbum_service.Models
+namespace verbum_service_domain.Models
 {
     public partial class Image
     {

@@ -1,4 +1,4 @@
-﻿namespace verbum_service.Workflow
+﻿namespace verbum_service_application.Workflow
 {
     public abstract class AbstractWorkFlow<T> : IWorkFlow<T>
     {

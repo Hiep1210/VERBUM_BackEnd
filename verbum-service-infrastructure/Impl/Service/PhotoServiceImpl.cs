@@ -1,11 +1,12 @@
-﻿
-
-using CloudinaryDotNet;
+﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
-using verbum_service.Models;
+using verbum_service_application.Service;
+using verbum_service_domain.Models;
 
-namespace verbum_service.Service.Impl
+namespace verbum_service_infrastructure.Impl.Service
 {
     public class PhotoServiceImpl : PhotoService
     {

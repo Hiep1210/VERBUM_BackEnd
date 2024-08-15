@@ -1,5 +1,4 @@
-using CaloFitAPI.Dto.Mapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -31,7 +30,16 @@ namespace verbum_service
                 options.Cookie.IsEssential = true;
             });
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddCors();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigins",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:3000") // URL của frontend
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
             builder.Services.AddSwaggerGen();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -64,7 +72,6 @@ namespace verbum_service
                 }
             });
             });
-            builder.Services.AddAutoMapper(typeof(MyMapper).Assembly);
             //add jwt setting 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
                 opt =>
@@ -82,6 +89,12 @@ namespace verbum_service
                     };
                 }
               );
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+
+            });
 
             var app = builder.Build();
 
@@ -91,6 +104,8 @@ namespace verbum_service
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseSession();
 
             app.UseHttpsRedirection();
 

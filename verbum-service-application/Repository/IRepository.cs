@@ -1,4 +1,4 @@
-﻿namespace verbum_service.Repository
+﻿namespace verbum_service_application.Repository
 {
     public interface IRepository<T>
     {

@@ -1,6 +1,7 @@
-﻿using verbum_service.Models;
+﻿using verbum_service_domain.Models;
+using Microsoft.AspNetCore.Http;
 
-namespace verbum_service.Service
+namespace verbum_service_application.Service
 {
     public abstract class PhotoService
     {

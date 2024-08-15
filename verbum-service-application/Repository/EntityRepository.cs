@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace verbum_service.Repository
+namespace verbum_service_application.Repository
 {
     public class EntityFrameworkRepository<T> : IRepository<T> where T : class
     {

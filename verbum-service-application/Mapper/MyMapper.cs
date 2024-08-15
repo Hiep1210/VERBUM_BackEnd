@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace CaloFitAPI.Dto.Mapper
+namespace verbum_service_application.Mapper
 {
     public class MyMapper : Profile
     {

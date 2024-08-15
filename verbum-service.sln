@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "verbum-service", "verbum-service\verbum-service.csproj", "{5257DED4-B2DE-41C4-B4C5-195EC652CC60}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "verbum-service-web-api", "verbum-service-web-api\verbum-service-web-api.csproj", "{5257DED4-B2DE-41C4-B4C5-195EC652CC60}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "verbum-service-application", "verbum-service-application\verbum-service-application.csproj", "{5479E2C3-CA54-4387-90E3-34CD29A70954}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "verbum-service-domain", "verbum-service-domain\verbum-service-domain.csproj", "{70E794F2-095A-4525-B796-152BAB3CCA43}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "verbum-service-infrastructure", "verbum-service-infrastructure\verbum-service-infrastructure.csproj", "{637DAD9B-312B-4C9F-AA39-C26A7A8E68D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5257DED4-B2DE-41C4-B4C5-195EC652CC60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5479E2C3-CA54-4387-90E3-34CD29A70954}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5479E2C3-CA54-4387-90E3-34CD29A70954}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5479E2C3-CA54-4387-90E3-34CD29A70954}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5479E2C3-CA54-4387-90E3-34CD29A70954}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E794F2-095A-4525-B796-152BAB3CCA43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E794F2-095A-4525-B796-152BAB3CCA43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E794F2-095A-4525-B796-152BAB3CCA43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E794F2-095A-4525-B796-152BAB3CCA43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{637DAD9B-312B-4C9F-AA39-C26A7A8E68D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{637DAD9B-312B-4C9F-AA39-C26A7A8E68D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{637DAD9B-312B-4C9F-AA39-C26A7A8E68D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{637DAD9B-312B-4C9F-AA39-C26A7A8E68D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace verbum_service.Models
+﻿namespace verbum_service_domain.Models
 {
     public class CloudinarySettings
     {
