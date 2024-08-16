@@ -35,15 +35,15 @@ namespace VNH.Infrastructure
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
             });
-            services.AddAuthentication()
-            .AddGoogle(googleOptions =>
-            {
-                googleOptions.ClientId = configuration.GetValue<string>("Authentication:Google:AppId");
-                googleOptions.ClientSecret = configuration.GetValue<string>("Authentication:Google:AppSecret");
+            //services.AddAuthentication()
+            //.AddGoogle(googleOptions =>
+            //{
+            //    googleOptions.ClientId = configuration.GetValue<string>("Authentication:Google:AppId");
+            //    googleOptions.ClientSecret = configuration.GetValue<string>("Authentication:Google:AppSecret");
                 //// googleOptions.CallbackPath = "/signin-google";
                 ////googleOptions.AccessDeniedPath = "/Login";
                 ////googleOptions.SaveTokens = true;
-            });
+            //});
             //.AddFacebook(facebookOptions =>
             //{
             //    facebookOptions.AppId = configuration.GetValue<string>("Authentication:Facebook:AppId");

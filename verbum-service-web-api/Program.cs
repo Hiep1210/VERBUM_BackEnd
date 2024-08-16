@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using VNH.Infrastructure;
+using verbum_service_application;
 
 namespace verbum_service
 {
@@ -14,6 +16,9 @@ namespace verbum_service
             var builder = WebApplication.CreateBuilder(args);
 
             //builder.Services.AddDbContext<abcContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("MyDatabase")));
+
+            builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddApplication();
 
             // Add services to the container.
 
