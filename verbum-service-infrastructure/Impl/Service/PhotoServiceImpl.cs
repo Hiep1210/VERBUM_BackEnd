@@ -18,7 +18,7 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             Configuration = configuration;
             setting = Configuration.GetSection("CloudinarySettings").Get<CloudinarySettings>();
-            Account account = new Account(setting.CloudName,
+            CloudinaryDotNet.Account account = new CloudinaryDotNet.Account(setting.CloudName,
                 setting.ApiKey,
                 setting.ApiSecret);
             cloundinary = new Cloudinary(account);

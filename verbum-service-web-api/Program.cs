@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -11,6 +12,8 @@ namespace verbum_service
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //builder.Services.AddDbContext<abcContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("MyDatabase")));
 
             // Add services to the container.
 
