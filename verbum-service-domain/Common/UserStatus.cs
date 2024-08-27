@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace verbum_service_domain.Models
+namespace verbum_service_domain.Common
 {
-    public class AlertMessage
+    public enum UserStatus
     {
+        ACTIVE,
+        DEACTIVATE
     }
 }

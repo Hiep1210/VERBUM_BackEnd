@@ -3,7 +3,13 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using verbum_service_application.Repository;
+using verbum_service_application.Service;
 using verbum_service_domain.Models.Mail;
+using verbum_service_infrastructure.DataContext;
+using verbum_service_infrastructure.Impl.Repository;
+using verbum_service_infrastructure.Impl.Service;
+using verbum_service_infrastructure.Service;
 
 namespace VNH.Infrastructure
 {
@@ -30,6 +36,10 @@ namespace VNH.Infrastructure
                 options.Lockout.AllowedForNewUsers = false;
             });
 
+            services.AddDbContext<verbum_dbContext>();
+            //services.AddScoped<IRepository, EntityRepository>();
+            services.AddScoped<UserService, UserServiceImpl>();
+            services.AddTransient<AuthenticationService, AuthenticationServiceImpl>();
             // Facebook, Google
             services.Configure<ForwardedHeadersOptions>(options =>
             {

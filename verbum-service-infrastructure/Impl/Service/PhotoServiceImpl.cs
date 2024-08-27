@@ -41,7 +41,7 @@ namespace verbum_service_infrastructure.Impl.Service
                 }
             }
 
-            returnImg.Url = result.Uri.ToString();
+            returnImg.ImageLink = result.Uri.ToString();
 
             return returnImg;
         }

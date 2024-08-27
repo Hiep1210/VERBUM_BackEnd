@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using verbum_service_domain.Models;
+﻿using verbum_service_domain.Models.ErrorModel;
 
 namespace verbum_service_application.Validation
 {
