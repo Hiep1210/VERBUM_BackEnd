@@ -19,9 +19,9 @@ namespace verbum_service_infrastructure.Impl.Service
 {
     public class UserServiceImpl : UserService
     {
-        private readonly verbum_dbContext context;
+        private readonly verbumContext context;
         private readonly AuthenticationService authenticationService;
-        public UserServiceImpl(verbum_dbContext context, AuthenticationService authenticationService)
+        public UserServiceImpl(verbumContext context, AuthenticationService authenticationService)
         {
             this.context = context;
             this.authenticationService = authenticationService;
@@ -39,7 +39,28 @@ namespace verbum_service_infrastructure.Impl.Service
             {
                 return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.NOT_FOUND, "user");
             }
-            return ApiSuccessResult<Tokens>.Success(authenticationService.GenerateTokens(user));
+            Tokens newTokens = authenticationService.GenerateTokens(user);
+
+            using (var transaction = context.Database.BeginTransaction())
+            {
+                int newTokenId = await SaveRefreshToken(newTokens.RefreshToken);
+                transaction.Commit();
+            }
+
+            return ApiSuccessResult<Tokens>.Success(newTokens);
+        }
+
+        private async Task<int> SaveRefreshToken (string token)
+        {
+            Refreshtoken addedToken = new Refreshtoken
+            {
+                IssueAt = DateTime.Now,
+                ExpireAt = DateTime.Now.AddMonths(SystemConfig.REFRESH_TOKEN_LIFE),
+                TokenContent = token
+            };
+            context.Refreshtokens.Add(addedToken);
+            await context.SaveChangesAsync();
+            return addedToken.TokenId;
         }
     }
 }

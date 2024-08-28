@@ -36,7 +36,7 @@ namespace VNH.Infrastructure
                 options.Lockout.AllowedForNewUsers = false;
             });
 
-            services.AddDbContext<verbum_dbContext>();
+            services.AddDbContext<verbumContext>();
             //services.AddScoped<IRepository, EntityRepository>();
             services.AddScoped<UserService, UserServiceImpl>();
             services.AddTransient<AuthenticationService, AuthenticationServiceImpl>();

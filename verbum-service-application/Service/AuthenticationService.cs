@@ -6,6 +6,5 @@ namespace verbum_service_application.Service
     public interface AuthenticationService
     {
         Tokens GenerateTokens(User userinfo);
-        string GenerateRefreshToken();
     }
 }

@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using verbum_service_domain.Common;
+﻿using Microsoft.EntityFrameworkCore;
 using verbum_service_domain.Models;
 
 namespace verbum_service_infrastructure.DataContext
 {
-    public partial class verbum_dbContext : DbContext
+    public partial class verbumContext : DbContext
     {
-        public verbum_dbContext()
+        public verbumContext()
         {
         }
 
-        public verbum_dbContext(DbContextOptions<verbum_dbContext> options)
+        public verbumContext(DbContextOptions<verbumContext> options)
             : base(options)
         {
         }
@@ -22,14 +18,6 @@ namespace verbum_service_infrastructure.DataContext
         public virtual DbSet<Refreshtoken> Refreshtokens { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseNpgsql(SystemConfig.CONNECTION_STRING);
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -93,6 +81,9 @@ namespace verbum_service_infrastructure.DataContext
                 entity.HasIndex(e => e.Email, "User_email_key")
                     .IsUnique();
 
+                entity.HasIndex(e => e.TokenId, "user_unique")
+                    .IsUnique();
+
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
                     .HasColumnName("id");
@@ -116,11 +107,16 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.Property(e => e.RoleName).HasColumnName("roleName");
 
-                entity.Property(e => e.Status).HasColumnName("status");
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasDefaultValueSql("'ACTIVE'::text");
+
+                entity.Property(e => e.TokenId).HasColumnName("token_id");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("timestamp(3) without time zone")
-                    .HasColumnName("updatedAt");
+                    .HasColumnName("updatedAt")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasOne(d => d.Image)
                     .WithMany(p => p.Users)
@@ -128,11 +124,17 @@ namespace verbum_service_infrastructure.DataContext
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("user_image_fk");
 
-                entity.HasOne(d => d.NameNavigation)
+                entity.HasOne(d => d.RoleNameNavigation)
                     .WithMany(p => p.Users)
-                    .HasForeignKey(d => d.Name)
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasForeignKey(d => d.RoleName)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("user_role_fk");
+
+                entity.HasOne(d => d.Token)
+                    .WithOne(p => p.User)
+                    .HasForeignKey<User>(d => d.TokenId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("user_refreshtoken_fk");
             });
 
             OnModelCreatingPartial(modelBuilder);

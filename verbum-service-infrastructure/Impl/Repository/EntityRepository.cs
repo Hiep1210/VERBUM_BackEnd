@@ -6,10 +6,10 @@ namespace verbum_service_infrastructure.Impl.Repository
 {
     public class EntityRepository<T> : IRepository<T> where T : class
     {
-        protected readonly verbum_dbContext _context;
+        protected readonly verbumContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public EntityRepository(verbum_dbContext context)
+        public EntityRepository(verbumContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
