@@ -88,12 +88,14 @@ namespace verbum_service
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
+                        ValidateLifetime = true, 
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                        .GetBytes(builder.Configuration["Jwt:Key"]))
+                        .GetBytes(builder.Configuration["Jwt:Key"])),
+                        //default is 5 min
+                        ClockSkew = TimeSpan.Zero
                     };
                 }
               );
@@ -118,10 +120,12 @@ namespace verbum_service
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
-
-
-            app.MapControllers();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.Run();
         }

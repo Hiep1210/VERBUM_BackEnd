@@ -8,10 +8,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\Request\" />
-    <Folder Include="DTO\Response\" />
-    <Folder Include="Enum\" />
-  </ItemGroup>
-
 </Project>
