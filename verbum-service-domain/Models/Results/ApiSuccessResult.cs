@@ -2,14 +2,22 @@
 {
     public class ApiSuccessResult<T> : ApiResult<T>
     {
-        public ApiSuccessResult(T resultObj)
+        private ApiSuccessResult(T resultObj)
         {
             IsSuccessed = true;
             ResultObj = resultObj;
         }
-        public ApiSuccessResult()
+        private ApiSuccessResult()
         {
             IsSuccessed = true;
+        }
+        public static ApiSuccessResult<T> Success(T resultObj)
+        {
+            return new ApiSuccessResult<T>(resultObj);
+        }
+        public static ApiSuccessResult<T> Success()
+        {
+            return new ApiSuccessResult<T>();
         }
     }
 }

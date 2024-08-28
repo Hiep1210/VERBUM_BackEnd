@@ -10,6 +10,7 @@ using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
+using verbum_service_domain.Models.ErrorModel;
 using verbum_service_domain.Models.Results;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
@@ -29,16 +30,16 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             if (ObjectUtils.IsEmpty(loginCredentials))
             {
-                return new ApiErrorResult<Tokens>("login request is null");
+                return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.REQUIRED, "login credential");
             }
             string hashPassword = UserUtils.HashPassword(loginCredentials.Password);
             User user = await context.Users
                 .FirstOrDefaultAsync(x => x.Password == hashPassword && x.Email == loginCredentials.Email);
             if (ObjectUtils.IsEmpty(user) || user.Status != UserStatus.ACTIVE.ToString())
             {
-                return new ApiErrorResult<Tokens>("cannot find user");
+                return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.NOT_FOUND, "user");
             }
-            return new ApiSuccessResult<Tokens>(authenticationService.GenerateTokens(user));
+            return ApiSuccessResult<Tokens>.Success(authenticationService.GenerateTokens(user));
         }
     }
 }

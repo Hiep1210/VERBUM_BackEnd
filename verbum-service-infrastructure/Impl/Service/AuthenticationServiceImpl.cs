@@ -24,12 +24,12 @@ namespace verbum_service_infrastructure.Service
                 new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(ClaimTypes.Name, userInfo.Name),
                 new Claim(ClaimTypes.Role, userInfo.RoleName),
-                new Claim(ClaimEnum.Status, userInfo.Status)
+                new Claim(ClaimEnum.STATUS, userInfo.Status)
             };
 
             var token = new JwtSecurityToken(
               claims: claims,
-              expires: DateTime.Now.AddHours(SystemConfig.AccessTokenLife),
+              expires: DateTime.Now.AddHours(SystemConfig.ACCESS_TOKEN_LIFE),
               audience: _config["Jwt:Audience"],
               issuer: _config["Jwt:Issuer"],
               signingCredentials: credentials);

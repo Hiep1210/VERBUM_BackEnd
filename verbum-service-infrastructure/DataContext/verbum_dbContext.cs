@@ -27,7 +27,7 @@ namespace verbum_service_infrastructure.DataContext
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql(SystemConfig.ConnectionString);
+                optionsBuilder.UseNpgsql(SystemConfig.CONNECTION_STRING);
             }
         }
 

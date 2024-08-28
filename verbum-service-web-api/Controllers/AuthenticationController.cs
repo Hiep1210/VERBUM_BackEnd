@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Asn1.Mozilla;
 using verbum_service_application.Service;
 using verbum_service_domain.DTO.Request;
@@ -18,6 +19,7 @@ namespace verbum_service.Controllers
         }
         // GET: api/<AuthenticationController>
         [HttpGet]
+        [Authorize]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };

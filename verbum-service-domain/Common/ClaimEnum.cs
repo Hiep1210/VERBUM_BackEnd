@@ -8,6 +8,6 @@ namespace verbum_service_domain.Common
 {
     public static class ClaimEnum
     {
-        public const string Status = "status";
+        public const string STATUS = "status";
     }
 }
