@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using verbum_service_application.Repository;
@@ -20,11 +23,11 @@ namespace verbum_service_infrastructure.Impl.Service
     public class UserServiceImpl : UserService
     {
         private readonly verbumContext context;
-        private readonly AuthenticationService authenticationService;
-        public UserServiceImpl(verbumContext context, AuthenticationService authenticationService)
+        private readonly TokenService tokenService;
+        public UserServiceImpl(verbumContext context, TokenService tokenService)
         {
             this.context = context;
-            this.authenticationService = authenticationService;
+            this.tokenService = tokenService;
         }
         public async Task<ApiResult<Tokens>> Login(UserLogin loginCredentials)
         {
@@ -39,28 +42,41 @@ namespace verbum_service_infrastructure.Impl.Service
             {
                 return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.NOT_FOUND, "user");
             }
-            Tokens newTokens = authenticationService.GenerateTokens(user);
+            Tokens newTokens = tokenService.GenerateTokens(user);
 
+            if (user.TokenId == 0)
+            {
+                return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.REQUIRED, "token");
+            }
+
+            //transaction to roll back if update failed
             using (var transaction = context.Database.BeginTransaction())
             {
-                int newTokenId = await SaveRefreshToken(newTokens.RefreshToken);
+                await tokenService.UpdateRefreshToken(user.TokenId ?? 0, newTokens.RefreshToken);
                 transaction.Commit();
             }
 
             return ApiSuccessResult<Tokens>.Success(newTokens);
         }
-
-        private async Task<int> SaveRefreshToken (string token)
+        public async Task<ApiResult<Tokens>> RefreshAccessToken(Tokens tokens)
         {
-            Refreshtoken addedToken = new Refreshtoken
+            var principal = tokenService.GetPrincipalFromExpiredToken(tokens.AccessToken);
+            if(ObjectUtils.IsEmpty(principal))
             {
-                IssueAt = DateTime.Now,
-                ExpireAt = DateTime.Now.AddMonths(SystemConfig.REFRESH_TOKEN_LIFE),
-                TokenContent = token
-            };
-            context.Refreshtokens.Add(addedToken);
-            await context.SaveChangesAsync();
-            return addedToken.TokenId;
+                return ApiErrorResult<Tokens>.Alert(StatusCodes.Status400BadRequest, ValidationAlertCode.NOT_FOUND, "principal");
+            }
+            string? email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            User? user = context.Users.Include(x => x.Token).FirstOrDefault(context => context.Email == email);
+            if(ObjectUtils.IsEmpty(user)) {
+                return ApiErrorResult<Tokens>.Alert(StatusCodes.Status400BadRequest, ValidationAlertCode.NOT_FOUND, "user");
+            }
+            if(user.Token.ExpireAt < DateTime.Now || tokens.RefreshToken != user.Token.TokenContent)
+            {
+                return ApiErrorResult<Tokens>.Alert(StatusCodes.Status401Unauthorized, ValidationAlertCode.INVALID, "refresh token");
+            }
+            Tokens newTokens = tokenService.GenerateTokens(user);
+            await tokenService.UpdateRefreshToken(user.TokenId ?? 0, newTokens.RefreshToken);
+            return ApiSuccessResult<Tokens>.Success(StatusCodes.Status201Created, newTokens);
         }
     }
 }

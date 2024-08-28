@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Mozilla;
 using verbum_service_application.Service;
 using verbum_service_domain.DTO.Request;
+using verbum_service_domain.DTO.Response;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -37,12 +37,19 @@ namespace verbum_service.Controllers
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
             var result = await userService.Login(userLogin);
-            return result.IsSuccessed ? Ok(result) : BadRequest(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("signup")]
         public void SignUp([FromBody] string value)
         {
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> Refresh([FromBody] Tokens tokens)
+        {
+            var result = await userService.RefreshAccessToken(tokens);
+            return StatusCode(result.StatusCode, result);
         }
 
         // PUT api/<AuthenticationController>/5

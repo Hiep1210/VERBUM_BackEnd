@@ -12,5 +12,6 @@ namespace verbum_service_domain.Models.ErrorModel
         public const string FAILED_VALIDATION = "{0} failed validation";
         public const string LENGTH_RANGE_FAILED = "{0} length is from {1} to {2}";
         public const string NOT_FOUND = "{0} is not found in database";
+        public const string INVALID = "{0} is invalid";
     }
 }

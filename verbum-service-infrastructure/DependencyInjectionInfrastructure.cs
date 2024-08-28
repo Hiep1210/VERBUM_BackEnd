@@ -9,7 +9,6 @@ using verbum_service_domain.Common;
 using verbum_service_domain.Models.Mail;
 using verbum_service_infrastructure.DataContext;
 using verbum_service_infrastructure.Impl.Service;
-using verbum_service_infrastructure.Service;
 
 namespace VNH.Infrastructure
 {
@@ -40,7 +39,7 @@ namespace VNH.Infrastructure
             options.UseNpgsql(SystemConfig.CONNECTION_STRING));
             //services.AddScoped<IRepository, EntityRepository>();
             services.AddScoped<UserService, UserServiceImpl>();
-            services.AddTransient<AuthenticationService, AuthenticationServiceImpl>();
+            services.AddScoped<TokenService, TokenServiceImpl>();
             // Facebook, Google
             services.Configure<ForwardedHeadersOptions>(options =>
             {

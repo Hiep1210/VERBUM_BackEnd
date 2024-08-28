@@ -17,16 +17,30 @@ namespace verbum_service_infrastructure.DataContext
         {
         }
 
+        public virtual DbSet<Company> Companies { get; set; } = null!;
         public virtual DbSet<Image> Images { get; set; } = null!;
-        public virtual DbSet<Refreshtoken> Refreshtokens { get; set; } = null!;
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Company>(entity =>
+            {
+                entity.ToTable("company");
+
+                entity.Property(e => e.CompanyId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("company_id");
+
+                entity.Property(e => e.Name)
+                    .HasColumnType("character varying")
+                    .HasColumnName("name");
+            });
+
             modelBuilder.Entity<Image>(entity =>
             {
-                entity.ToTable("Image");
+                entity.ToTable("image");
 
                 entity.HasIndex(e => e.ImageLink, "image_unique")
                     .IsUnique();
@@ -41,12 +55,12 @@ namespace verbum_service_infrastructure.DataContext
                     .HasComment("save link, image will be save on thirdparty (cloudinary)");
             });
 
-            modelBuilder.Entity<Refreshtoken>(entity =>
+            modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(e => e.TokenId)
                     .HasName("refreshtoken_pk");
 
-                entity.ToTable("refreshtoken");
+                entity.ToTable("refresh_token");
 
                 entity.Property(e => e.TokenId)
                     .HasColumnName("token_id")
@@ -56,9 +70,9 @@ namespace verbum_service_infrastructure.DataContext
                     .HasColumnType("timestamp without time zone")
                     .HasColumnName("expire_at");
 
-                entity.Property(e => e.IssueAt)
+                entity.Property(e => e.IssuedAt)
                     .HasColumnType("timestamp without time zone")
-                    .HasColumnName("issue_at");
+                    .HasColumnName("issued_at");
 
                 entity.Property(e => e.TokenContent)
                     .HasColumnType("character varying")
@@ -70,7 +84,7 @@ namespace verbum_service_infrastructure.DataContext
                 entity.HasKey(e => e.Name)
                     .HasName("Role_pkey");
 
-                entity.ToTable("Role");
+                entity.ToTable("role");
 
                 entity.Property(e => e.Name).HasColumnName("name");
 
@@ -79,7 +93,7 @@ namespace verbum_service_infrastructure.DataContext
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("User");
+                entity.ToTable("user");
 
                 entity.HasIndex(e => e.Email, "User_email_key")
                     .IsUnique();
@@ -93,14 +107,14 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("timestamp(3) without time zone")
-                    .HasColumnName("createdAt")
+                    .HasColumnName("created_at")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.Email).HasColumnName("email");
 
                 entity.Property(e => e.EmailVerified)
                     .HasColumnType("timestamp(3) without time zone")
-                    .HasColumnName("emailVerified");
+                    .HasColumnName("email_verified");
 
                 entity.Property(e => e.ImageId).HasColumnName("image_id");
 
@@ -108,7 +122,7 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.Property(e => e.Password).HasColumnName("password");
 
-                entity.Property(e => e.RoleName).HasColumnName("roleName");
+                entity.Property(e => e.RoleName).HasColumnName("role_name");
 
                 entity.Property(e => e.Status)
                     .HasColumnName("status")
@@ -118,7 +132,7 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("timestamp(3) without time zone")
-                    .HasColumnName("updatedAt")
+                    .HasColumnName("updated_at")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasOne(d => d.Image)

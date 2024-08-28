@@ -12,5 +12,6 @@ namespace verbum_service_application.Service
     public interface UserService
     {
         Task<ApiResult<Tokens>> Login(UserLogin loginCredentials);
+        Task<ApiResult<Tokens>> RefreshAccessToken(Tokens tokens);
     }
 }

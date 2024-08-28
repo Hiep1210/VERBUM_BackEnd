@@ -19,6 +19,6 @@ namespace verbum_service_domain.Models
 
         public virtual Image? Image { get; set; }
         public virtual Role RoleNameNavigation { get; set; } = null!;
-        public virtual Refreshtoken? Token { get; set; }
+        public virtual RefreshToken? Token { get; set; }
     }
 }
