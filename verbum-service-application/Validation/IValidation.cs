@@ -4,6 +4,6 @@ namespace verbum_service_application.Validation
 {
     public interface IValidation<T>
     {
-        public List<string> Validate(T request);
+        public Task<List<string>> Validate(T request);
     }
 }

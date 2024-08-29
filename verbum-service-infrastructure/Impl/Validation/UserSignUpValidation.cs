@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,15 +19,15 @@ namespace verbum_service_infrastructure.Impl.Validation
         {
             this.context = context;
         }
-        public List<string> Validate(UserSignUp request)
+        public async Task<List<string>> Validate(UserSignUp request)
         {
             List<string> alerts = new List<string>();
-            ValidateEmail(request, alerts);
+            await ValidateEmail(request, alerts);
             return alerts;
         }
-        private void ValidateEmail(UserSignUp request, List<string> alerts)
+        private async Task ValidateEmail(UserSignUp request, List<string> alerts)
         {
-            if (ObjectUtils.IsNotEmpty(context.Users.FirstOrDefault(x => x.Email == request.Email)))
+            if (ObjectUtils.IsNotEmpty(await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email)))
             {
                 alerts.Add(AlertMessage.Alert(ValidationAlertCode.DUPLICATE, "this email"));
             }

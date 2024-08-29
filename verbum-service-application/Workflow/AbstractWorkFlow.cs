@@ -4,15 +4,15 @@
     {
         public async Task process(T entity)
         {
-            PreStep(entity);
-            ValidationStep(entity);
-            CommonStep(entity);
-            PostStep(entity);
+            await PreStep(entity);
+            await ValidationStep(entity);
+            await CommonStep(entity);
+            await PostStep(entity);
         }
 
-        protected abstract void PreStep(T request);
-        protected abstract void ValidationStep(T request);
-        protected abstract void CommonStep(T request);
-        protected abstract void PostStep(T request);
+        protected abstract Task PreStep(T request);
+        protected abstract Task ValidationStep(T request);
+        protected abstract Task CommonStep(T request);
+        protected abstract Task PostStep(T request);
     }
 }

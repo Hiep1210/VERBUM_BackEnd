@@ -29,20 +29,20 @@ namespace verbum_service_infrastructure.Impl.Workflow
             this.validation = validation;
             this.userService = userService;
         }
-        protected override void PreStep(UserSignUp request)
+        protected override async Task PreStep(UserSignUp request)
         {
             Console.WriteLine("start user workflow");
-            //verified
+            //verified email
         }
-        protected override void ValidationStep(UserSignUp request)
+        protected override async Task ValidationStep(UserSignUp request)
         {
-            List<string> alerts = validation.Validate(request);
+            List<string> alerts = await validation.Validate(request);
             if (ObjectUtils.IsNotEmpty(alerts))
             {
                 throw new BusinessException(alerts);
             }
         }
-        protected override void CommonStep(UserSignUp request)
+        protected override async Task CommonStep(UserSignUp request)
         {
             user = mapper.Map<User>(request);
             user.EmailVerified = DateTime.Now;
@@ -53,7 +53,7 @@ namespace verbum_service_infrastructure.Impl.Workflow
             user.Status = UserStatus.ACTIVE.ToString();
         }
 
-        protected override async void PostStep(UserSignUp request)
+        protected override async Task PostStep(UserSignUp request)
         {
             tokens = await userService.SignUp(user);
         }
