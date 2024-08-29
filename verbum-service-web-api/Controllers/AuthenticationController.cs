@@ -32,7 +32,6 @@ namespace verbum_service.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            createUserWorkflow.process(new UserSignUp());
             return "value";
         }
 
@@ -44,9 +43,9 @@ namespace verbum_service.Controllers
         }
 
         [HttpPost("signup")]
-        public Task<IActionResult> SignUp([FromBody] UserSignUp userSignUp)
+        public async Task<IActionResult> SignUp([FromBody] UserSignUp userSignUp)
         {
-            createUserWorkflow.process(userSignUp);
+            await createUserWorkflow.process(userSignUp);
             return Ok(createUserWorkflow.GetResponse());
         }
 

@@ -2,7 +2,7 @@
 {
     public abstract class AbstractWorkFlow<T> : IWorkFlow<T>
     {
-        public void process(T entity)
+        public async Task process(T entity)
         {
             PreStep(entity);
             ValidationStep(entity);
