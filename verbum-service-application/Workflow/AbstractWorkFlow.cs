@@ -10,9 +10,9 @@
             PostStep(entity);
         }
 
-        protected abstract void PreStep(T entity);
-        protected abstract void ValidationStep(T entity);
-        protected abstract void CommonStep(T entity);
-        protected abstract void PostStep(T entity);
+        protected abstract void PreStep(T request);
+        protected abstract void ValidationStep(T request);
+        protected abstract void CommonStep(T request);
+        protected abstract void PostStep(T request);
     }
 }

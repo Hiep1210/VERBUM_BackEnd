@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using System.Security.Claims;
 using verbum_service_application.Service;
 using verbum_service_domain.Common;
+using verbum_service_domain.Common.ErrorModel;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
-using verbum_service_domain.Models.ErrorModel;
 using verbum_service_domain.Models.Results;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
@@ -22,25 +23,28 @@ namespace verbum_service_infrastructure.Impl.Service
             this.context = context;
             this.tokenService = tokenService;
         }
-        public async Task<ApiResult<Tokens>> Login(UserLogin loginCredentials)
+        public async Task<Tokens> SignUp(User user)
         {
-            if (ObjectUtils.IsEmpty(loginCredentials))
-            {
-                return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.REQUIRED, "login credential");
-            }
+            Tokens newToken = tokenService.GenerateTokens(user);
+            user.TokenId = await tokenService.AddRefreshToken(newToken.RefreshToken);
+            return newToken;
+        }
+        public async Task<Tokens> Login(UserLogin loginCredentials)
+        {
+            List<string> alerts = new List<string>();
+
             string hashPassword = UserUtils.HashPassword(loginCredentials.Password);
             User user = await context.Users
                 .FirstOrDefaultAsync(x => x.Password == hashPassword && x.Email == loginCredentials.Email);
             if (ObjectUtils.IsEmpty(user) || user.Status != UserStatus.ACTIVE.ToString())
             {
-                return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.NOT_FOUND, "user");
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "user"));
+            }
+            if (ObjectUtils.IsNotEmpty(alerts))
+            {
+                throw new BusinessException(alerts);
             }
             Tokens newTokens = tokenService.GenerateTokens(user);
-
-            if (user.TokenId == 0)
-            {
-                return ApiErrorResult<Tokens>.Alert(ValidationAlertCode.REQUIRED, "token");
-            }
 
             //transaction to roll back if update failed
             using (var transaction = context.Database.BeginTransaction())
@@ -56,27 +60,33 @@ namespace verbum_service_infrastructure.Impl.Service
                 }
             }
 
-            return ApiSuccessResult<Tokens>.Success(newTokens);
+            return newTokens;
         }
-        public async Task<ApiResult<Tokens>> RefreshAccessToken(Tokens tokens)
+        public async Task<Tokens> RefreshAccessToken(Tokens tokens)
         {
+            List<string> alerts = new List<string>();
+
             var principal = tokenService.GetPrincipalFromExpiredToken(tokens.AccessToken);
             if(ObjectUtils.IsEmpty(principal))
             {
-                return ApiErrorResult<Tokens>.Alert(StatusCodes.Status400BadRequest, ValidationAlertCode.NOT_FOUND, "principal");
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "principal"));
             }
             string? email = principal.FindFirst(ClaimTypes.Email)?.Value;
             User? user = context.Users.Include(x => x.Token).FirstOrDefault(context => context.Email == email);
             if(ObjectUtils.IsEmpty(user)) {
-                return ApiErrorResult<Tokens>.Alert(StatusCodes.Status400BadRequest, ValidationAlertCode.NOT_FOUND, "user");
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "user"));
             }
             if(user.Token.ExpireAt < DateTime.Now || tokens.RefreshToken != user.Token.TokenContent)
             {
-                return ApiErrorResult<Tokens>.Alert(StatusCodes.Status401Unauthorized, ValidationAlertCode.INVALID, "refresh token");
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.INVALID, "refresh token"));
+            }
+            if(ObjectUtils.IsNotEmpty(alerts))
+            {
+                throw new BusinessException(alerts);
             }
             Tokens newTokens = tokenService.GenerateTokens(user);
             await tokenService.UpdateRefreshToken(user.TokenId ?? 0, newTokens.RefreshToken);
-            return ApiSuccessResult<Tokens>.Success(StatusCodes.Status201Created, newTokens);
+            return newTokens;
         }
     }
 }
