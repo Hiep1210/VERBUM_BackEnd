@@ -1,13 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using verbum_service_application.Repository;
 using verbum_service_application.Service;
 using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
@@ -52,8 +45,15 @@ namespace verbum_service_infrastructure.Impl.Service
             //transaction to roll back if update failed
             using (var transaction = context.Database.BeginTransaction())
             {
-                await tokenService.UpdateRefreshToken(user.TokenId ?? 0, newTokens.RefreshToken);
-                transaction.Commit();
+                try
+                {
+                    await tokenService.UpdateRefreshToken(user.TokenId ?? 0, newTokens.RefreshToken);
+                    transaction.Commit();
+                } catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
 
             return ApiSuccessResult<Tokens>.Success(newTokens);

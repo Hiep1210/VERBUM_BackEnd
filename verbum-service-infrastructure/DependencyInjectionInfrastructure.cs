@@ -37,7 +37,6 @@ namespace VNH.Infrastructure
 
             services.AddDbContext<verbumContext>(options =>
             options.UseNpgsql(SystemConfig.CONNECTION_STRING));
-            //services.AddScoped<IRepository, EntityRepository>();
             services.AddScoped<UserService, UserServiceImpl>();
             services.AddScoped<TokenService, TokenServiceImpl>();
             // Facebook, Google
