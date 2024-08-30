@@ -5,10 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using verbum_service_application.Service;
+using verbum_service_application.Workflow;
 using verbum_service_domain.Common;
+using verbum_service_domain.DTO.Request;
 using verbum_service_domain.Models.Mail;
 using verbum_service_infrastructure.DataContext;
 using verbum_service_infrastructure.Impl.Service;
+using verbum_service_infrastructure.Impl.Validation;
+using verbum_service_infrastructure.Impl.Workflow;
 
 namespace VNH.Infrastructure
 {
@@ -35,10 +39,18 @@ namespace VNH.Infrastructure
                 options.Lockout.AllowedForNewUsers = false;
             });
 
+            //service dependency
             services.AddDbContext<verbumContext>(options =>
             options.UseNpgsql(SystemConfig.CONNECTION_STRING));
             services.AddScoped<UserService, UserServiceImpl>();
             services.AddScoped<TokenService, TokenServiceImpl>();
+
+            //workflow dependency
+            services.AddScoped<CreateUserWorkflow>();
+
+            //validation dependency
+            services.AddScoped<UserSignUpValidation>();
+
             // Facebook, Google
             services.Configure<ForwardedHeadersOptions>(options =>
             {
