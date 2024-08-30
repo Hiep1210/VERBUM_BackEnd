@@ -36,8 +36,7 @@ namespace verbum_service_infrastructure.Impl.Service
             List<string> alerts = new List<string>();
 
             string hashPassword = UserUtils.HashPassword(loginCredentials.Password);
-            User user = await context.Users
-                .FirstOrDefaultAsync(x => x.Password == hashPassword && x.Email == loginCredentials.Email);
+            User user = await context.Users.FirstOrDefaultAsync(x => x.Password == hashPassword && x.Email == loginCredentials.Email);
             if (ObjectUtils.IsEmpty(user) || user.Status != UserStatus.ACTIVE.ToString())
             {
                 alerts.Add(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "user"));

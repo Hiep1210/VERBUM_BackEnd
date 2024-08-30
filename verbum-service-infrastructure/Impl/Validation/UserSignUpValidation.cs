@@ -27,7 +27,7 @@ namespace verbum_service_infrastructure.Impl.Validation
         }
         private async Task ValidateEmail(UserSignUp request, List<string> alerts)
         {
-            if (ObjectUtils.IsNotEmpty(await context.Users.FirstOrDefaultAsync(x => x.Email == request.Email)))
+            if (await context.Users.AnyAsync(x => x.Email == request.Email))
             {
                 alerts.Add(AlertMessage.Alert(ValidationAlertCode.DUPLICATE, "this email"));
             }
