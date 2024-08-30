@@ -27,6 +27,8 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             Tokens newToken = tokenService.GenerateTokens(user);
             user.TokenId = await tokenService.AddRefreshToken(newToken.RefreshToken);
+            context.Users.Add(user);
+            context.SaveChanges();
             return newToken;
         }
         public async Task<Tokens> Login(UserLogin loginCredentials)

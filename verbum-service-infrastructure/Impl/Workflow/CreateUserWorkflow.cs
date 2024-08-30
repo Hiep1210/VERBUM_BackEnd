@@ -45,6 +45,7 @@ namespace verbum_service_infrastructure.Impl.Workflow
         protected override async Task CommonStep(UserSignUp request)
         {
             user = mapper.Map<User>(request);
+            user.Id = Guid.NewGuid();
             user.EmailVerified = DateTime.Now;
             //may need refactor for gg sign in (no password in request
             user.Password = UserUtils.HashPassword(request.Password);
