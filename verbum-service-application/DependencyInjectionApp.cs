@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using verbum_service_application.Mapper;
 
 namespace verbum_service_application
 {
@@ -6,7 +7,8 @@ namespace verbum_service_application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(DependencyInjectionApp));
+            //dependency inject Imapper
+            services.AddAutoMapper(typeof(MyMapper).Assembly);
             return services;
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using verbum_service_application.Service;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
+using verbum_service_infrastructure.Impl.Workflow;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,9 +14,11 @@ namespace verbum_service.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly UserService userService;
-        public AuthenticationController(UserService userService)
+        private readonly CreateUserWorkflow createUserWorkflow;
+        public AuthenticationController(UserService userService, CreateUserWorkflow createUserWorkflow)
         {
             this.userService = userService;
+            this.createUserWorkflow = createUserWorkflow;
         }
         // GET: api/<AuthenticationController>
         [HttpGet]
@@ -36,20 +39,20 @@ namespace verbum_service.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
-            var result = await userService.Login(userLogin);
-            return StatusCode(result.StatusCode, result);
+            return Ok(await userService.Login(userLogin));
         }
 
         [HttpPost("signup")]
-        public void SignUp([FromBody] string value)
+        public async Task<IActionResult> SignUp([FromBody] UserSignUp userSignUp)
         {
+            await createUserWorkflow.process(userSignUp);
+            return Ok(createUserWorkflow.GetResponse());
         }
 
         [HttpPost("refresh-token")]
         public async Task<IActionResult> Refresh([FromBody] Tokens tokens)
         {
-            var result = await userService.RefreshAccessToken(tokens);
-            return StatusCode(result.StatusCode, result);
+            return Ok(await userService.RefreshAccessToken(tokens));
         }
 
         // PUT api/<AuthenticationController>/5

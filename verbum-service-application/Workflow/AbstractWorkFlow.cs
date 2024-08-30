@@ -2,17 +2,17 @@
 {
     public abstract class AbstractWorkFlow<T> : IWorkFlow<T>
     {
-        public void process(T entity)
+        public async Task process(T entity)
         {
-            PreStep(entity);
-            ValidationStep(entity);
-            CommonStep(entity);
-            PostStep(entity);
+            await PreStep(entity);
+            await ValidationStep(entity);
+            await CommonStep(entity);
+            await PostStep(entity);
         }
 
-        protected abstract void PreStep(T entity);
-        protected abstract void ValidationStep(T entity);
-        protected abstract void CommonStep(T entity);
-        protected abstract void PostStep(T entity);
+        protected abstract Task PreStep(T request);
+        protected abstract Task ValidationStep(T request);
+        protected abstract Task CommonStep(T request);
+        protected abstract Task PostStep(T request);
     }
 }

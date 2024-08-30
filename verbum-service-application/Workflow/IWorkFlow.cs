@@ -2,6 +2,6 @@
 {
     public interface IWorkFlow<T>
     {
-        void process(T entity);
+        Task process(T entity);
     }
 }

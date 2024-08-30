@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using VNH.Infrastructure;
 using verbum_service_application;
+using verbum_service_application.Workflow;
 
 namespace verbum_service
 {
@@ -14,8 +15,6 @@ namespace verbum_service
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            //builder.Services.AddDbContext<abcContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("MyDatabase")));
 
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddApplication();
@@ -105,6 +104,10 @@ namespace verbum_service
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
 
             });
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<ControllerExceptionFilter>();
+            });
 
             var app = builder.Build();
 
@@ -116,7 +119,6 @@ namespace verbum_service
             }
 
             app.UseSession();
-
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
