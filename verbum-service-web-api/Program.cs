@@ -101,9 +101,11 @@ namespace verbum_service
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
-
+                options.IdleTimeout = TimeSpan.FromDays(2);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
             });
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers(options =>
             {
                 options.Filters.Add<ControllerExceptionFilter>();

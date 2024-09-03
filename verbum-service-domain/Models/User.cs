@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace verbum_service_domain.Models
+﻿namespace verbum_service_domain.Models
 {
     public partial class User
     {

@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 using verbum_service_application.Service;
+using verbum_service_domain.Common.ErrorModel;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
+using verbum_service_domain.Models;
+using verbum_service_domain.Utils;
 using verbum_service_infrastructure.Impl.Workflow;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -28,13 +33,6 @@ namespace verbum_service.Controllers
             return new string[] { "value1", "value2" };
         }
 
-        // GET api/<AuthenticationController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/<AuthenticationController>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
@@ -46,7 +44,7 @@ namespace verbum_service.Controllers
         public async Task<IActionResult> SignUp([FromBody] UserSignUp userSignUp)
         {
             await createUserWorkflow.process(userSignUp);
-            return Ok(createUserWorkflow.GetResponse());
+            return NoContent();
         }
 
         [HttpPost("refresh-token")]
@@ -55,22 +53,26 @@ namespace verbum_service.Controllers
             return Ok(await userService.RefreshAccessToken(tokens));
         }
 
-        // PUT api/<AuthenticationController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet("confirm-email/{token}/{email}")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
+            string emailFromCookie = Request.Cookies[token];
+            if (ObjectUtils.IsEmpty(emailFromCookie))
+            {
+                throw new BusinessException(ValidationAlertCode.EMAIL_EXPIRED);
+            }
+            if(emailFromCookie == email)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.INVALID, "this email"));
+            }
+            return Ok(await userService.ConfirmEmail(token, email)); 
         }
 
-        // DELETE api/<AuthenticationController>/5
-        //[HttpDelete("{id}")]
-        //public IActionResult Revoke()
-        //{
-        //    var username = User.Identity.Name;
-        //    var user = _userContext.LoginModels.SingleOrDefault(u => u.UserName == username);
-        //    if (user == null) return BadRequest();
-        //    user.RefreshToken = null;
-        //    _userContext.SaveChanges();
-        //    return NoContent();
-        //}
+        [HttpPost("resend-email")]
+        public async Task<IActionResult> ResendVerficationEmail(string email)
+        {
+            await userService.SendConfirmationEmail(email);
+            return NoContent();
+        }
     }
 }

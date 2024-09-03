@@ -26,7 +26,7 @@ namespace verbum_service_infrastructure.Impl.Service
             RefreshToken addedToken = new RefreshToken
             {
                 IssuedAt = DateTime.Now,
-                ExpireAt = DateTime.Now.AddMonths(SystemConfig.REFRESH_TOKEN_LIFE),
+                ExpireAt = DateTime.Now.AddDays(SystemConfig.REFRESH_TOKEN_LIFE),
                 TokenContent = token
             };
             context.RefreshTokens.Add(addedToken);
@@ -57,7 +57,7 @@ namespace verbum_service_infrastructure.Impl.Service
 
             var token = new JwtSecurityToken(
               claims: claims,
-              expires: DateTime.Now.AddMinutes(SystemConfig.ACCESS_TOKEN_LIFE),
+              expires: DateTime.Now.AddSeconds(SystemConfig.ACCESS_TOKEN_LIFE),
               audience: _config["Jwt:Audience"],
               issuer: _config["Jwt:Issuer"],
               signingCredentials: credentials);

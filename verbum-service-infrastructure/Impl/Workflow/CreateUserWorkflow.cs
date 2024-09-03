@@ -46,17 +46,16 @@ namespace verbum_service_infrastructure.Impl.Workflow
         {
             user = mapper.Map<User>(request);
             user.Id = Guid.NewGuid();
-            user.EmailVerified = DateTime.Now;
             //may need refactor for gg sign in (no password in request
             user.Password = UserUtils.HashPassword(request.Password);
             user.CreatedAt = DateTime.Now;
             user.UpdatedAt = DateTime.Now;
-            user.Status = UserStatus.ACTIVE.ToString();
+            user.Status = UserStatus.DEACTIVATE.ToString();
         }
 
         protected override async Task PostStep(UserSignUp request)
         {
-            tokens = await userService.SignUp(user);
+            await userService.SignUp(user);
         }
         public Tokens GetResponse()
         {
