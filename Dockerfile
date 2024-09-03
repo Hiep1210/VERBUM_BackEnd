@@ -4,6 +4,7 @@ EXPOSE 8080
 EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+ENV ASPNETCORE_ENVIRONMENT=Development
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["verbum-service-web-api/verbum-service-web-api.csproj","verbum-service-web-api/"]
@@ -23,4 +24,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 8000
-ENTRYPOINT [ "dotnet", "verbum-service-web-api.dll"]
+ENTRYPOINT [ "dotnet", "verbum-service-web-api.dll", "--environment=Development"]
