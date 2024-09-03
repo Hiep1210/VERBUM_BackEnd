@@ -58,9 +58,17 @@ namespace verbum_service_infrastructure.Impl.Service
 
             string hashPassword = UserUtils.HashPassword(loginCredentials.Password);
             User user = await context.Users.FirstOrDefaultAsync(x => x.Password == hashPassword && x.Email == loginCredentials.Email);
-            if (ObjectUtils.IsEmpty(user) || user.Status != UserStatus.ACTIVE.ToString())
+            if (ObjectUtils.IsEmpty(user))
             {
                 alerts.Add(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "user"));
+            }
+            if (ObjectUtils.IsNotEmpty(user) && user.Status != UserStatus.ACTIVE.ToString())
+            {
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.INVALID, "user"));
+            }
+            if(ObjectUtils.IsNotEmpty(user) && ObjectUtils.IsEmpty(user.EmailVerified))
+            {
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.EMAIL_NOT_VERIFIED));
             }
             if (ObjectUtils.IsNotEmpty(alerts))
             {

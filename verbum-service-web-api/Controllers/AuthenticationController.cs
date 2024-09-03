@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 using verbum_service_application.Service;
+using verbum_service_domain.Common;
 using verbum_service_domain.Common.ErrorModel;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
@@ -27,8 +28,15 @@ namespace verbum_service.Controllers
         }
         // GET: api/<AuthenticationController>
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = UserRole.LINGUIST + "," + UserRole.ADMIN)]
         public IEnumerable<string> Get()
+        {
+            return new string[] { "value1", "value2" };
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = UserRole.ADMIN)]
+        public IEnumerable<string> Get(int id)
         {
             return new string[] { "value1", "value2" };
         }
@@ -60,6 +68,7 @@ namespace verbum_service.Controllers
             await Console.Out.WriteLineAsync(emailFromCookie);
             if (ObjectUtils.IsEmpty(emailFromCookie))
             {
+                await userService.SendConfirmationEmail(email);
                 throw new BusinessException(ValidationAlertCode.EMAIL_EXPIRED);
             }
             if(emailFromCookie != email)
