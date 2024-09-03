@@ -57,11 +57,12 @@ namespace verbum_service.Controllers
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
             string emailFromCookie = Request.Cookies[token];
+            await Console.Out.WriteLineAsync(emailFromCookie);
             if (ObjectUtils.IsEmpty(emailFromCookie))
             {
                 throw new BusinessException(ValidationAlertCode.EMAIL_EXPIRED);
             }
-            if(emailFromCookie == email)
+            if(emailFromCookie != email)
             {
                 throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.INVALID, "this email"));
             }

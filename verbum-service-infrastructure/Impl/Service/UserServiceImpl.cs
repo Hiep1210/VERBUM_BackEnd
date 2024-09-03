@@ -27,8 +27,8 @@ namespace verbum_service_infrastructure.Impl.Service
         }
         public async Task SignUp(User user)
         {
-            //context.Users.Add(user);
-            //await context.SaveChangesAsync();
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
             await SendConfirmationEmail(user.Email);
         }
         public async Task SendConfirmationEmail(string email)
