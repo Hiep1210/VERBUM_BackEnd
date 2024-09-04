@@ -37,7 +37,7 @@ namespace verbum_service_infrastructure.Impl.Service
             //add cookie
             httpContextAccessor.HttpContext.Response.Cookies.Append(emailToken, email, new CookieOptions
             {
-                Expires = DateTimeOffset.UtcNow.AddDays(2),
+                Expires = DateTimeOffset.UtcNow.AddHours(MailConstant.MailExpirationTime),
                 HttpOnly = true,
                 Secure = true
             });

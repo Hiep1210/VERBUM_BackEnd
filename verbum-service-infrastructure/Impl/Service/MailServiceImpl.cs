@@ -36,8 +36,7 @@ namespace verbum_service_infrastructure.Impl.Service
             email.From.Add(new MailboxAddress(mailSettings.DisplayName, mailSettings.Mail));
             email.To.Add(MailboxAddress.Parse(mailContent.To));
             email.Subject = mailContent.Subject;
-
-
+            
             var builder = new BodyBuilder();
             builder.HtmlBody = mailContent.Body;
             email.Body = builder.ToMessageBody();
