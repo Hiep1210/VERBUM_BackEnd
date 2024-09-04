@@ -42,7 +42,7 @@ namespace verbum_service
                 options.AddPolicy("AllowSpecificOrigins",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:3000") // URL của frontend
+                        builder.WithOrigins("https://localhost:3000") // URL của frontend
                                .AllowAnyMethod()
                                .AllowAnyHeader();
                     });
@@ -99,11 +99,8 @@ namespace verbum_service
                 }
               );
             builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
-
-            });
+            builder.Services.AddSession();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers(options =>
             {
                 options.Filters.Add<ControllerExceptionFilter>();

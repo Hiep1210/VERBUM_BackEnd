@@ -32,10 +32,6 @@ namespace verbum_service_infrastructure.Impl.Validation
             {
                 alerts.Add(AlertMessage.Alert(ValidationAlertCode.DUPLICATE, "this email"));
             }
-            if(!request.IsVerified)
-            {
-                alerts.Add(ValidationAlertCode.EMAIL_NOT_VERIFIED);
-            }
         }
         private void ValidatePassword(UserSignUp request, List<string> alerts)
         {

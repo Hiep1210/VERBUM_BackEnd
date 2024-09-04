@@ -13,6 +13,10 @@ namespace verbum_service_domain.Common.ErrorModel
         {
             Errors = messages;
         }
+        public BusinessException(string message)
+        {
+            Errors = new List<string> { message };
+        }
         public BusinessException() { }
     }
 }

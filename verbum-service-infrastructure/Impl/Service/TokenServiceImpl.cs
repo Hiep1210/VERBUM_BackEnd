@@ -26,7 +26,7 @@ namespace verbum_service_infrastructure.Impl.Service
             RefreshToken addedToken = new RefreshToken
             {
                 IssuedAt = DateTime.Now,
-                ExpireAt = DateTime.Now.AddMonths(SystemConfig.REFRESH_TOKEN_LIFE),
+                ExpireAt = DateTime.Now.AddDays(SystemConfig.REFRESH_TOKEN_LIFE),
                 TokenContent = token
             };
             context.RefreshTokens.Add(addedToken);

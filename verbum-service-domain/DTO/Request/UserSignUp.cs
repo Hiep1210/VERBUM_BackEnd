@@ -14,6 +14,5 @@ namespace verbum_service_domain.DTO.Request
         public string Email { get; set; } = null!;
         public string? Password { get; set; }
         public string RoleName { get; set; } = null!;
-        public bool IsVerified { get; set; } = false;
     }
 }

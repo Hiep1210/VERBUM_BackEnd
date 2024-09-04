@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .verify-button {
+            background-color: forestgreen;
+            color: #f7f2f2;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            display: inline-block;
+        }
+            .verify-button:hover {
+                background-color: rgb(26, 93, 26);
+            }
+        u + #body a {
+            color: #f7f2f2;
+            text-decoration: none;
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: bold;
+            line-height: inherit;
+        }
+    </style>
+</head>
+<body id="body" style="font-family: sans-serif; background-color: #f8fafc; padding: 1rem;">
+    <div style="width: 100%; max-width: 600px; margin: 0 auto;">
+        <form method="get" action="{link}">
+            <table style="width: 100%; border-spacing: 0; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 100%; padding: 1rem; color: #374151; background-color: #ffffff; border-radius: 0.25rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                        <table style="width: 100%; border-spacing: 0; border-collapse: collapse;">
+                            <tr>
+                                <td style="text-align: center; padding: 1rem 0;">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Vue.png" width="50" alt="Verbum">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h1 style="text-align: center; font-size: 1.25rem; font-weight: bold;">
+                                        Hello, time to verify your email
+                                    </h1>
+                                    <p style="margin: 0; line-height: 1.5;">
+                                        Hello,
+                                        <br />
+                                        <br />
+                                        We are very happy that you've decided to use Verbum as your next localization platform.
+                                        Please follow the link below to complete verification
+                                    </p>
+                                    <br />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center; padding: 1rem 0;">
+                                    <a href="{link}" class="verify-button">
+                                        Verify your Email
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0;">
+                                    <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 1rem 0;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center; color: #6b7280; font-size: 0.75rem;">
+                                    <p style="margin: 0; ">If this wasn't you, please ignore this email</p>
+                                    <p text-transform: uppercase;>&copy;2024 Verbum</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

@@ -8,6 +8,7 @@ using verbum_service_application.Service;
 using verbum_service_application.Workflow;
 using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
+using verbum_service_domain.Models;
 using verbum_service_domain.Models.Mail;
 using verbum_service_infrastructure.DataContext;
 using verbum_service_infrastructure.Impl.Service;
@@ -34,10 +35,9 @@ namespace VNH.Infrastructure
             //          options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             //      });
             // Identity settings
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Lockout.AllowedForNewUsers = false;
-            });
+            //services.AddIdentity<User, Role>()
+            //    .AddEntityFrameworkStores<verbumContext>()
+            //.AddDefaultTokenProviders();
 
             //service dependency
             services.AddDbContext<verbumContext>(options =>
@@ -50,6 +50,8 @@ namespace VNH.Infrastructure
 
             //validation dependency
             services.AddScoped<UserSignUpValidation>();
+
+            services.AddHttpContextAccessor();
 
             // Facebook, Google
             services.Configure<ForwardedHeadersOptions>(options =>
@@ -75,10 +77,9 @@ namespace VNH.Infrastructure
             //});
 
             services.AddOptions();
-            services.AddSession();
             var mailsettings = configuration.GetSection("MailSettings");
             services.Configure<MailSettings>(mailsettings);
-            //services.AddSingleton<ISendMailService, SendMailService>();
+            services.AddTransient<MailService, MailServiceImpl>();
             //services.AddSingleton<IStorageService, StorageService>();
 
             //services.AddScoped<INewsService, NewsService>();
