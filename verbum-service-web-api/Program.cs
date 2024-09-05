@@ -80,24 +80,33 @@ namespace verbum_service
             });
             });
             //add jwt setting 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-                opt =>
-                {
-                    opt.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true, 
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                        .GetBytes(builder.Configuration["Jwt:Key"])),
-                        //default is 5 min
-                        ClockSkew = TimeSpan.Zero
-                    };
-                }
-              );
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Bearer";
+                options.DefaultChallengeScheme = "Bearer";
+                options.DefaultSignInScheme = "Cookies";
+            })
+            .AddCookie("Cookies")
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                ClockSkew = TimeSpan.Zero
+            };
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = "146051395272-7u94g9gtl459kekcn25l0o6a6m085f65.apps.googleusercontent.com";
+                options.ClientSecret = "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";
+            });
+
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession();
             builder.Services.AddHttpContextAccessor();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +17,6 @@ namespace verbum_service_application.Service
         Task SignUp(User user);
         Task<Tokens> ConfirmEmail(string token, string email);
         Task SendConfirmationEmail(string email);
+        Task<User> LoginGoogleCallback();
     }
 }

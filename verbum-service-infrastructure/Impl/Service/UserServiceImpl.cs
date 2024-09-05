@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using verbum_service_application.Service;
@@ -135,5 +137,43 @@ namespace verbum_service_infrastructure.Impl.Service
             await context.SaveChangesAsync();
             return tokens;
         }
+
+        public async Task<User> LoginGoogleCallback()
+        {
+            var authenticateResult = await httpContextAccessor.HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (!authenticateResult.Succeeded)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.LOGIN_FAIL));
+            }
+
+            var claims = authenticateResult.Principal.Claims;
+            var claimsList = claims.Select(claim => new { Type = claim.Type, Value = claim.Value });
+
+            string email = claimsList.FirstOrDefault(c => c.Type.EndsWith("emailaddress"))?.Value;
+
+            User user1 = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user1 == null)
+            {
+                //tokenService.GenerateTokens(user1);
+                return new User();
+            }
+
+            User user = new User();
+            user.Id = Guid.NewGuid();
+            user.Email = claimsList.FirstOrDefault(c => c.Type.EndsWith("emailaddress"))?.Value;
+            user.Name = claimsList.FirstOrDefault(c => c.Type.EndsWith("name"))?.Value;
+            user.RoleName = "User";
+            user.CreatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.Now;
+            user.Status = UserStatus.ACTIVE.ToString();
+
+            //context.Users.Add(user);
+            //tokenService.GenerateTokens(user);
+            //await context.SaveChangesAsync();
+
+            return user;
+        }
+
     }
 }
