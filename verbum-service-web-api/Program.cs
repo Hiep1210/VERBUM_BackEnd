@@ -101,10 +101,10 @@ namespace verbum_service
                 ClockSkew = TimeSpan.Zero
             };
             })
-            .AddGoogle(options =>
+            .AddGoogle(googleOptions =>
             {
-                options.ClientId = "146051395272-7u94g9gtl459kekcn25l0o6a6m085f65.apps.googleusercontent.com";
-                options.ClientSecret = "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";
+                googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
             });
 
             builder.Services.AddDistributedMemoryCache();
