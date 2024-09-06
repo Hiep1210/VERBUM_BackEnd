@@ -11,6 +11,7 @@ using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
+using Newtonsoft.Json.Linq;
 
 namespace verbum_service_infrastructure.Impl.Service
 {
@@ -138,7 +139,7 @@ namespace verbum_service_infrastructure.Impl.Service
             return tokens;
         }
 
-        public async Task<User> LoginGoogleCallback()
+        public async Task<Tokens> LoginGoogleCallback()
         {
             var authenticateResult = await httpContextAccessor.HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
             if (!authenticateResult.Succeeded)
@@ -147,33 +148,42 @@ namespace verbum_service_infrastructure.Impl.Service
             }
 
             var claims = authenticateResult.Principal.Claims;
-            var claimsList = claims.Select(claim => new { Type = claim.Type, Value = claim.Value });
+            string email = claims.FirstOrDefault(c => c.Type.EndsWith("emailaddress"))?.Value;
+            string name = claims.FirstOrDefault(c => c.Type.EndsWith("name"))?.Value;
 
-            string email = claimsList.FirstOrDefault(c => c.Type.EndsWith("emailaddress"))?.Value;
+            User oldUser = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            User user1 = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
-
-            if (user1 == null)
+            if (oldUser != null)
             {
-                //tokenService.GenerateTokens(user1);
-                return new User();
+                return await LoginGoogleOldUser(oldUser);
             }
 
+            return await LoginGoogleNewUser(email,name);
+        }
+
+        public async Task<Tokens> LoginGoogleNewUser(string email, string name)
+        {
             User user = new User();
             user.Id = Guid.NewGuid();
-            user.Email = claimsList.FirstOrDefault(c => c.Type.EndsWith("emailaddress"))?.Value;
-            user.Name = claimsList.FirstOrDefault(c => c.Type.EndsWith("name"))?.Value;
-            user.RoleName = "User";
+            user.Email = email;
+            user.Name = name;
             user.CreatedAt = DateTime.Now;
             user.UpdatedAt = DateTime.Now;
             user.Status = UserStatus.ACTIVE.ToString();
 
-            //context.Users.Add(user);
-            //tokenService.GenerateTokens(user);
-            //await context.SaveChangesAsync();
-
-            return user;
+            context.Users.Add(user);
+            Tokens newTokens = tokenService.GenerateTokens(user);
+            user.TokenId = await tokenService.AddRefreshToken(newTokens.RefreshToken);
+            await context.SaveChangesAsync();
+            return newTokens;
         }
 
+        public async Task<Tokens> LoginGoogleOldUser(User oldUser)
+        {
+            Tokens newTokens = tokenService.GenerateTokens(oldUser);
+            await tokenService.UpdateRefreshToken(oldUser.TokenId ?? 0, newTokens.RefreshToken);
+            await context.SaveChangesAsync();
+            return newTokens;
+        }
     }
 }

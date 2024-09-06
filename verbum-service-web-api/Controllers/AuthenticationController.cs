@@ -29,7 +29,7 @@ namespace verbum_service.Controllers
         }
         // GET: api/<AuthenticationController>
         [HttpGet]
-        [Authorize(Roles = UserRole.LINGUIST + "," + UserRole.ADMIN)]
+        [Authorize]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
@@ -52,7 +52,8 @@ namespace verbum_service.Controllers
         [HttpGet("google-login")]
         public IActionResult LoginGoogle()
         {
-            return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/google-callback" }, GoogleDefaults.AuthenticationScheme);
+            return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/google-callback" }, 
+                GoogleDefaults.AuthenticationScheme);
         }
 
         [HttpGet("google-callback")]

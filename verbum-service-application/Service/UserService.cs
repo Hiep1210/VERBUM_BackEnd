@@ -17,6 +17,6 @@ namespace verbum_service_application.Service
         Task SignUp(User user);
         Task<Tokens> ConfirmEmail(string token, string email);
         Task SendConfirmationEmail(string email);
-        Task<User> LoginGoogleCallback();
+        Task<Tokens> LoginGoogleCallback();
     }
 }
