@@ -182,7 +182,6 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             Tokens newTokens = tokenService.GenerateTokens(oldUser);
             await tokenService.UpdateRefreshToken(oldUser.TokenId ?? 0, newTokens.RefreshToken);
-            await context.SaveChangesAsync();
             return newTokens;
         }
     }
