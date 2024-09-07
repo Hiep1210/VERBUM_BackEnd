@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +59,9 @@ namespace VNH.Infrastructure
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
             });
+
+            
+
             //services.AddAuthentication()
             //.AddGoogle(googleOptions =>
             //{

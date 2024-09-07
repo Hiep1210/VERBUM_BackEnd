@@ -7,12 +7,12 @@ namespace verbum_service_domain.Models
     {
         public Role()
         {
-            Users = new HashSet<User>();
+            UserCompanies = new HashSet<UserCompany>();
         }
 
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
 
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<UserCompany> UserCompanies { get; set; }
     }
 }

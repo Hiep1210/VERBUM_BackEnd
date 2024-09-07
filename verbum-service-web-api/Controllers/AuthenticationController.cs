@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 using verbum_service_application.Service;
@@ -28,7 +29,7 @@ namespace verbum_service.Controllers
         }
         // GET: api/<AuthenticationController>
         [HttpGet]
-        [Authorize(Roles = UserRole.LINGUIST + "," + UserRole.ADMIN)]
+        [Authorize]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
@@ -46,6 +47,19 @@ namespace verbum_service.Controllers
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
             return Ok(await userService.Login(userLogin));
+        }
+
+        [HttpGet("google-login")]
+        public IActionResult LoginGoogle()
+        {
+            return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/google-callback" }, 
+                GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("google-callback")]
+        public async Task<IActionResult> GoogleCallback()
+        {
+            return Ok(await userService.LoginGoogleCallback());
         }
 
         [HttpPost("signup")]
