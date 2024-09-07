@@ -68,7 +68,6 @@ namespace verbum_service.Controllers
             await Console.Out.WriteLineAsync(emailFromCookie);
             if (ObjectUtils.IsEmpty(emailFromCookie))
             {
-                await userService.SendConfirmationEmail(email);
                 throw new BusinessException(ValidationAlertCode.EMAIL_EXPIRED);
             }
             if(emailFromCookie != email)
