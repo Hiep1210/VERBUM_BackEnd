@@ -16,5 +16,6 @@ namespace verbum_service_domain.Common.ErrorModel
         public const string INVALID = "{0} is invalid";
         public const string EMAIL_NOT_VERIFIED = "Email is not verified";
         public const string EMAIL_EXPIRED = "The email verification email token might be expired. Please check your email again";
+        public const string LOGIN_FAIL = "Login fail";
     }
 }

@@ -80,24 +80,33 @@ namespace verbum_service
             });
             });
             //add jwt setting 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-                opt =>
-                {
-                    opt.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true, 
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                        .GetBytes(builder.Configuration["Jwt:Key"])),
-                        //default is 5 min
-                        ClockSkew = TimeSpan.Zero
-                    };
-                }
-              );
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Bearer";
+                options.DefaultChallengeScheme = "Bearer";
+                options.DefaultSignInScheme = "Cookies";
+            })
+            .AddCookie("Cookies")
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                ClockSkew = TimeSpan.Zero
+            };
+            })
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+            });
+
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession();
             builder.Services.AddHttpContextAccessor();

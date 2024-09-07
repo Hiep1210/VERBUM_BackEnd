@@ -51,7 +51,6 @@ namespace verbum_service_infrastructure.Impl.Service
             var claims = new[] {
                 new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(ClaimTypes.Name, userInfo.Name),
-                new Claim(ClaimTypes.Role, userInfo.RoleName),
                 new Claim(ClaimEnum.STATUS, userInfo.Status)
             };
 
