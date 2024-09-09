@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations;
 using verbum_service_application.Service;
 using verbum_service_domain.Common;
-using verbum_service_domain.Common.ErrorModel;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
-using verbum_service_domain.Models;
-using verbum_service_domain.Utils;
 using verbum_service_infrastructure.Impl.Workflow;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -75,20 +72,11 @@ namespace verbum_service.Controllers
             return Ok(await userService.RefreshAccessToken(tokens));
         }
 
-        [HttpGet("confirm-email/{token}/{email}")]
-        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        [HttpGet("confirm-email/{email}")]
+        [Authorize]
+        public async Task<IActionResult> ConfirmEmail(string email, [FromQuery, Required] string access_token)
         {
-            string emailFromCookie = Request.Cookies[token];
-            await Console.Out.WriteLineAsync(emailFromCookie);
-            if (ObjectUtils.IsEmpty(emailFromCookie))
-            {
-                throw new BusinessException(ValidationAlertCode.EMAIL_EXPIRED);
-            }
-            if(emailFromCookie != email)
-            {
-                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.INVALID, "this email"));
-            }
-            return Ok(await userService.ConfirmEmail(token, email)); 
+            return Ok(await userService.ConfirmEmail(email)); 
         }
 
         [HttpPost("resend-email")]

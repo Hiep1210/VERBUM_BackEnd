@@ -15,7 +15,7 @@ namespace verbum_service_application.Service
         Task<Tokens> Login(UserLogin loginCredentials);
         Task<Tokens> RefreshAccessToken(Tokens tokens);
         Task SignUp(User user);
-        Task<Tokens> ConfirmEmail(string token, string email);
+        Task<Tokens> ConfirmEmail(string email);
         Task SendConfirmationEmail(string email);
         Task<Tokens> LoginGoogleCallback();
     }

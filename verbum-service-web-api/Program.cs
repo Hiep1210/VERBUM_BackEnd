@@ -7,6 +7,8 @@ using System.Text;
 using VNH.Infrastructure;
 using verbum_service_application;
 using verbum_service_application.Workflow;
+using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace verbum_service
 {
@@ -100,6 +102,32 @@ namespace verbum_service
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
                 ClockSkew = TimeSpan.Zero
             };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            // Attach the token from the query string
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                    //,
+                    //OnAuthenticationFailed = context =>
+                    //{
+                    //    if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                    //    {
+                    //        var exception = (SecurityTokenExpiredException)context.Exception;
+
+                    //        // Log or return custom response for expired token
+                    //        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    //        context.Response.ContentType = "application/json";
+                    //    }
+                    //    return Task.CompletedTask;
+                    //}
+                };
             })
             .AddGoogle(googleOptions =>
             {

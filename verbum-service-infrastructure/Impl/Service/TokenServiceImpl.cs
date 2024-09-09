@@ -56,7 +56,7 @@ namespace verbum_service_infrastructure.Impl.Service
 
             var token = new JwtSecurityToken(
               claims: claims,
-              expires: DateTime.Now.AddMinutes(SystemConfig.ACCESS_TOKEN_LIFE),
+              expires: DateTime.Now.AddHours(SystemConfig.ACCESS_TOKEN_LIFE),
               audience: _config["Jwt:Audience"],
               issuer: _config["Jwt:Issuer"],
               signingCredentials: credentials);
@@ -66,6 +66,26 @@ namespace verbum_service_infrastructure.Impl.Service
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = GenerateRefreshToken()
             };
+        }
+        public string GenerateEmailToken(string email)
+        {
+            var _config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[] {
+                new Claim(ClaimTypes.Email, email)
+            };
+
+            var token = new JwtSecurityToken(
+              claims: claims,
+              expires: DateTime.Now.AddHours(MailConstant.MailExpirationTime),
+              audience: _config["Jwt:Audience"],
+              issuer: _config["Jwt:Issuer"],
+              signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
         private string GenerateRefreshToken()
         {

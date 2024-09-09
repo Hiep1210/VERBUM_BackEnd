@@ -10,6 +10,7 @@ namespace verbum_service_application.Service
         Task UpdateRefreshToken(int tokenId, string newToken);
         Tokens GenerateTokens(User userinfo);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        string GenerateEmailToken(string email);
 
     }
 }
