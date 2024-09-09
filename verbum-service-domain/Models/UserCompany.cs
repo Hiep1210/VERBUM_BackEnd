@@ -14,6 +14,7 @@ namespace verbum_service_domain.Models
         public Guid UserId { get; set; }
         public Guid CompanyId { get; set; }
         public string Role { get; set; } = null!;
+        public string Status { get; set; } = null!;
 
         public virtual Company Company { get; set; } = null!;
         public virtual Role RoleNavigation { get; set; } = null!;
