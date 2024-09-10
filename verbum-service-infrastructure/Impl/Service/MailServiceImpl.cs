@@ -1,12 +1,6 @@
 ﻿using MailKit.Security;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using verbum_service_application.Service;
 using verbum_service_domain.Models.Mail;
 

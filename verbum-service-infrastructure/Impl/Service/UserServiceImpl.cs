@@ -40,16 +40,9 @@ namespace verbum_service_infrastructure.Impl.Service
         }
         public async Task SendConfirmationEmail(string email)
         {
-            var emailToken = Guid.NewGuid().ToString();
-            //add cookie
-            httpContextAccessor.HttpContext.Response.Cookies.Append(emailToken, email, new CookieOptions
-            {
-                Expires = DateTimeOffset.UtcNow.AddHours(MailConstant.MailExpirationTime),
-                HttpOnly = true,
-                Secure = true
-            });
+            var emailToken = tokenService.GenerateEmailToken(email);
             //send mail
-            string body = await BuildVerificationEmail(SystemConfig.DOMAIN + "auth/confirm-email/" + emailToken + "/" + email);
+            string body = await BuildVerificationEmail(SystemConfig.DOMAIN + "auth/confirm-email/" + email + "?access_token="+emailToken);
             await mailService.SendEmailAsync(email, string.Format(MailConstant.SUBJECT, email), body);
         }
         private async Task<string> BuildVerificationEmail(string link)
@@ -128,7 +121,7 @@ namespace verbum_service_infrastructure.Impl.Service
             return newTokens;
         }
 
-        public async Task<Tokens> ConfirmEmail(string token, string email)
+        public async Task<Tokens> ConfirmEmail(string email)
         {
             User user = await context.Users.FirstOrDefaultAsync(x => x.Email == email);
             if(user == null)
