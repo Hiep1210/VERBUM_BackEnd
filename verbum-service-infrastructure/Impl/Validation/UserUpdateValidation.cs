@@ -21,6 +21,9 @@ namespace verbum_service_infrastructure.Impl.Validation
         public async Task<List<string>> Validate(UserUpdate request)
         {
             List<string> alerts = new List<string>();
+            ValidateEmpty(request, alerts);
+            await ValidateUserCompany(request, alerts);
+            await ValidateEmail(request, alerts);
             return alerts;
         }
 
@@ -49,6 +52,22 @@ namespace verbum_service_infrastructure.Impl.Validation
             if(!await context.UserCompanies.AnyAsync(u => u.UserId == request.UserId && u.CompanyId == request.CompanyId))
             {
                 alerts.Add(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "usercomapny"));
+            }
+        }
+
+        private async Task ValidateEmpty(UserUpdate request, List<string> alerts)
+        {
+            if (ObjectUtils.IsEmpty(request.Data.Name))
+            {
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.REQUIRED, "name"));
+            }
+            if (ObjectUtils.IsEmpty(request.Data.Email))
+            {
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.REQUIRED, "email"));
+            }
+            if (ObjectUtils.IsEmpty(request.Data.Role))
+            {
+                alerts.Add(AlertMessage.Alert(ValidationAlertCode.REQUIRED, "role"));
             }
         }
     }

@@ -191,7 +191,9 @@ namespace verbum_service_infrastructure.Impl.Service
 
         public async Task<UserInfo> GetUserInCompanyById(Guid userId, Guid companyId)
         {
-            UserCompany userCompany = await context.UserCompanies.FirstOrDefaultAsync(u => u.UserId == userId && u.CompanyId == companyId);
+            UserCompany userCompany = await context.UserCompanies
+                .Include(uc => uc.User)
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.CompanyId == companyId);
             if(userCompany == null)
             {
                 throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND,"UserCompany"));
@@ -214,6 +216,7 @@ namespace verbum_service_infrastructure.Impl.Service
                     userCompany.Role = request.Data.Role;
                     //update relevancy
                     await context.SaveChangesAsync();
+                    transaction.Commit();
                 }
                 catch
                 {
@@ -230,8 +233,7 @@ namespace verbum_service_infrastructure.Impl.Service
             {
                 throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
             }
-            if(userCompany.Status == UserStatus.DEACTIVATE.ToString()) userCompany.Status = UserStatus.ACTIVE.ToString();
-            userCompany.Status = UserStatus.DEACTIVATE.ToString();
+            userCompany.Status = userCompany.Status == UserStatus.DEACTIVATE.ToString() ? UserStatus.ACTIVE.ToString() : UserStatus.DEACTIVATE.ToString();
             await context.SaveChangesAsync();
         }
     }

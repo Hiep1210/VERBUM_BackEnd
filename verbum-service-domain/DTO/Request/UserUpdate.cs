@@ -11,6 +11,6 @@ namespace verbum_service_domain.DTO.Request
     {
         public Guid UserId { get; set; }
         public Guid CompanyId { get; set; }
-        public UserInfo Data { get; set; }
+        public UserUpdateInfo Data { get; set; }
     }
 }
