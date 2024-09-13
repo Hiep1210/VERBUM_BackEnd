@@ -26,7 +26,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal
 
   sonar:
-    name: Build and analyze
+    name: sonar
     runs-on: windows-latest
     
     steps:
