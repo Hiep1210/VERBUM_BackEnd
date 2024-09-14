@@ -51,15 +51,13 @@ namespace verbum_service_domain.Models
         /// </summary>
         public double Progress { get; set; }
         /// <summary>
-        /// The language of the translation
-        /// </summary>
-        public int TargetLanguageId { get; set; }
-        /// <summary>
         /// The project the this job is under
         /// </summary>
         public Guid ProjectId { get; set; }
+        public string TargetLanguageId { get; set; } = null!;
 
         public virtual Project Project { get; set; } = null!;
+        public virtual Language TargetLanguage { get; set; } = null!;
         public virtual ICollection<UserJob> UserJobs { get; set; }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 using System.Text;
-using VNH.Infrastructure;
 using verbum_service_application;
 using verbum_service_application.Workflow;
-using Microsoft.Extensions.Options;
-using System.Net;
+using verbum_service_domain.Common;
+using VNH.Infrastructure;
 
 namespace verbum_service
 {
@@ -112,6 +111,21 @@ namespace verbum_service
                             // Attach the token from the query string
                             context.Token = accessToken;
                         }
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        var claimsPrincipal = context.Principal;
+                        if (claimsPrincipal.Identity.IsAuthenticated)
+                        {
+                            // Populate RequestInfo based on the validated claims
+                            var currentUser = context.HttpContext.RequestServices.GetRequiredService<CurrentUser>();
+                            currentUser.Id = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+                            currentUser.Email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ?? "";
+                            currentUser.Name = claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value ?? "";
+                            currentUser.Status = claimsPrincipal.FindFirst("STATUS")?.Value ?? ""; 
+                        }
+
                         return Task.CompletedTask;
                     }
                     //,

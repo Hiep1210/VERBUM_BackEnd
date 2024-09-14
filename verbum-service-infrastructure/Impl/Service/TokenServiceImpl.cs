@@ -49,6 +49,7 @@ namespace verbum_service_infrastructure.Impl.Service
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
+                new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString()),
                 new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(ClaimTypes.Name, userInfo.Name),
                 new Claim(ClaimEnum.STATUS, userInfo.Status)

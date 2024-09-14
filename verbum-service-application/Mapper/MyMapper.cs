@@ -18,7 +18,8 @@ namespace verbum_service_application.Mapper
                 .ForMember(dest => dest.Relevancy, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.User.CreatedAt))
                 .ForMember(dest => dest.UserCompanyStatus, opt => opt.MapFrom(src => src.Status))
-                ;
+                .ReverseMap();
+            CreateMap<Company, CreateCompanyRequest>().ReverseMap();
         }
     }
 }
