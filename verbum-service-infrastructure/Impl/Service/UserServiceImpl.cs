@@ -233,40 +233,17 @@ namespace verbum_service_infrastructure.Impl.Service
             await context.SaveChangesAsync();
         }
 
-        public async Task<PagedList<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId)
+        public async Task<List<UserInfo>> GetAllUserInCompany(Guid companyId)
         {
-            IQueryable<UserCompany> users = context.UserCompanies
+            List<UserCompany> userCompany = await context.UserCompanies
                 .Include(uc => uc.User)
-                .Where(uc => uc.CompanyId == companyId);
-
-            if (users == null)
+                .Where(uc => uc.CompanyId == companyId).ToListAsync();
+            if (userCompany == null)
             {
                 throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
             }
-
-            if (!ObjectUtils.IsEmpty(request.searchTerm))
-            {
-                users = users.Where(uc => uc.User.Name.Contains(request.searchTerm) || uc.User.Email.Contains(request.searchTerm));
-            }
-            if (!ObjectUtils.IsEmpty(request.roleTerm))
-            {
-                users = users.Where(uc => uc.Role.ToLower().Equals(request.roleTerm.ToLower()));
-            }
-            if (!ObjectUtils.IsEmpty(request.statusTerm))
-            {
-                users = users.Where(uc => uc.Status.ToLower().Equals(request.statusTerm.ToLower()));
-            }
-
-            if (!ObjectUtils.IsEmpty(request.sortOrder) &&request.sortOrder.ToLower() == "desc")
-            {
-                users = users.OrderByDescending(GetSortProperty(request.sortColumn));
-            }else users = users.OrderBy(GetSortProperty(request.sortColumn));
-
-            List<UserCompany> userList = await users.ToListAsync();
-            List<UserInfo> userInfoList = mapper.Map<List<UserInfo>>(userList);
-
-            var pagedList = await PagedList<UserInfo>.CreateAsync(userInfoList.AsQueryable(), request.page, request.pageSize);
-            return pagedList;
+            List<UserInfo> userInfo = mapper.Map<List<UserInfo>>(userCompany);
+            return userInfo;
         }
 
         private Expression<Func<UserCompany, object>> GetSortProperty(string? sortColumn)

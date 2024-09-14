@@ -14,7 +14,7 @@ namespace verbum_service_application.Service
         Task SendConfirmationEmail(string email);
         Task<Tokens> LoginGoogleCallback();
         Task<UserInfo> GetUserInCompanyById(Guid userId, Guid companyId);
-        Task<PagedList<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId);
+        Task<List<UserInfo>> GetAllUserInCompany(Guid companyId);
         Task UpdateUser(UserUpdate userUpdate);
         Task UpdateUserCompanyStatus(Guid userId, Guid companyId);
     }
