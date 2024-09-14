@@ -13,6 +13,7 @@ namespace verbum_service_domain.DTO.Response
         public string Role { get; set; }
         public string Email { get; set; }
         public string Relevancy { get; set; }
+        public string CreatedAt { get; set; }
         public string UserCompanyStatus { get; set; }
     }
 }

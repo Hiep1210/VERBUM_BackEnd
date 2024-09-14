@@ -11,9 +11,9 @@ using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
-using Newtonsoft.Json.Linq;
 using Microsoft.EntityFrameworkCore.Storage;
 using AutoMapper;
+using System.Linq.Expressions;
 
 
 namespace verbum_service_infrastructure.Impl.Service
@@ -229,6 +229,53 @@ namespace verbum_service_infrastructure.Impl.Service
             }
             userCompany.Status = userCompany.Status == UserStatus.DEACTIVATE.ToString() ? UserStatus.ACTIVE.ToString() : UserStatus.DEACTIVATE.ToString();
             await context.SaveChangesAsync();
+        }
+
+        public async Task<List<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId)
+        {
+            IQueryable<UserCompany> users = context.UserCompanies
+                .Include(uc => uc.User)
+                .Where(uc => uc.CompanyId == companyId);
+
+            if (users == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
+            }
+
+            if (!ObjectUtils.IsEmpty(request.searchTerm))
+            {
+                users = users.Where(uc => uc.User.Name.Contains(request.searchTerm) || uc.User.Email.Contains(request.searchTerm));
+            }
+            if (!ObjectUtils.IsEmpty(request.roleTerm))
+            {
+                users = users.Where(uc => uc.Role.ToLower().Equals(request.roleTerm.ToLower()));
+            }
+            if (!ObjectUtils.IsEmpty(request.statusTerm))
+            {
+                users = users.Where(uc => uc.Status.ToLower().Equals(request.statusTerm.ToLower()));
+            }
+
+            if (!ObjectUtils.IsEmpty(request.sortOrder) &&request.sortOrder.ToLower() == "desc")
+            {
+                users = users.OrderByDescending(GetSortProperty(request.sortColumn));
+            }else users = users.OrderBy(GetSortProperty(request.sortColumn));
+
+            List<UserCompany> userList = await users.ToListAsync();
+            List<UserInfo> list = mapper.Map<List<UserInfo>>(users);
+            return list;
+        }
+
+        private Expression<Func<UserCompany, object>> GetSortProperty(string? sortColumn)
+        {
+            return sortColumn?.ToLower() switch
+            {
+                "name" => userCompany => userCompany.User.Name,
+                "email" => userCompany => userCompany.User.Email,
+                "role" => userCompany => userCompany.Role,
+                "createdat" => userCompany => userCompany.User.CreatedAt,
+                "status" => userCompany => userCompany.Status,
+                _ => userCompany => userCompany.UserId
+            };
         }
     }
 }

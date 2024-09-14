@@ -22,6 +22,12 @@ namespace verbum_service.Controllers
             this.updateUserWorkflow = updateUserWorkflow;
         }
 
+        [HttpGet("GetAllUserInCompany/{cid}")]
+        public async Task<List<UserInfo>> GetAll([FromQuery] GetAllUserInCompany request,Guid cid)
+        {
+            return await userService.GetAllUserInCompany(request,cid);
+        }
+
         [HttpGet("GetUserInCompanyById/{uid}/{cid}")]
         public async Task<UserInfo> Get(Guid uid,Guid cid)
         {
