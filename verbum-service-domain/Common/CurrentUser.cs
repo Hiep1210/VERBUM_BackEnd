@@ -1,4 +1,4 @@
-﻿namespace verbum_service_domain.Models
+﻿namespace verbum_service_domain.Common
 {
     public class CurrentUser
     {

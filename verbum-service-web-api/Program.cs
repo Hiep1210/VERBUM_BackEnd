@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using verbum_service_application;
 using verbum_service_application.Workflow;
-using verbum_service_domain.Models;
+using verbum_service_domain.Common;
 using VNH.Infrastructure;
 
 namespace verbum_service

@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
 using Lombok.NET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using verbum_service_application.Service;
 using verbum_service_application.Workflow;
+using verbum_service_domain.Common.ErrorModel;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.Models;
+using verbum_service_domain.Utils;
+using verbum_service_infrastructure.Impl.Validation;
 
 namespace verbum_service_infrastructure.Impl.Workflow
 {
@@ -17,12 +15,18 @@ namespace verbum_service_infrastructure.Impl.Workflow
     { 
         private readonly CompanyService companyService;
         private readonly IMapper mapper;
+        private readonly CreateCompanyValidation createCompanyValidation;
         protected override async Task PreStep(CreateCompanyRequest request)
         {
         }
 
         protected override async Task ValidationStep(CreateCompanyRequest request)
         {
+            List<string> alerts = await createCompanyValidation.Validate(request);
+            if (ObjectUtils.IsNotEmpty(alerts))
+            {
+                throw new BusinessException(alerts);
+            }
         }
 
         protected override async Task CommonStep(CreateCompanyRequest request)

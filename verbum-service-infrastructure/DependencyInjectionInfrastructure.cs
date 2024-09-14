@@ -9,7 +9,6 @@ using verbum_service_application.Service;
 using verbum_service_application.Workflow;
 using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
-using verbum_service_domain.Models;
 using verbum_service_domain.Models.Mail;
 using verbum_service_infrastructure.DataContext;
 using verbum_service_infrastructure.Impl.Service;
@@ -56,6 +55,7 @@ namespace VNH.Infrastructure
             //validation dependency
             services.AddScoped<UserSignUpValidation>();
             services.AddScoped<UserUpdateValidation>();
+            services.AddScoped<CreateCompanyValidation>();
 
             services.AddHttpContextAccessor();
 
