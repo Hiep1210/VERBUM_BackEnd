@@ -7,6 +7,7 @@ using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
 using verbum_service_infrastructure.Impl.Workflow;
+using verbum_service_infrastructure.PagedList;
 
 namespace verbum_service.Controllers
 {
@@ -23,7 +24,7 @@ namespace verbum_service.Controllers
         }
 
         [HttpGet("GetAllUserInCompany/{cid}")]
-        public async Task<List<UserInfo>> GetAll([FromQuery] GetAllUserInCompany request,Guid cid)
+        public async Task<PagedList<UserInfo>> GetAll([FromQuery] GetAllUserInCompany request,Guid cid)
         {
             return await userService.GetAllUserInCompany(request,cid);
         }

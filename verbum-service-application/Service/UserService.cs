@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using verbum_service_domain.DTO.Request;
+﻿using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
+using verbum_service_infrastructure.PagedList;
 
 namespace verbum_service_application.Service
 {
@@ -19,7 +14,7 @@ namespace verbum_service_application.Service
         Task SendConfirmationEmail(string email);
         Task<Tokens> LoginGoogleCallback();
         Task<UserInfo> GetUserInCompanyById(Guid userId, Guid companyId);
-        Task<List<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId);
+        Task<PagedList<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId);
         Task UpdateUser(UserUpdate userUpdate);
         Task UpdateUserCompanyStatus(Guid userId, Guid companyId);
     }

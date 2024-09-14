@@ -13,7 +13,9 @@ using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
 using Microsoft.EntityFrameworkCore.Storage;
 using AutoMapper;
+using verbum_service_infrastructure.PagedList;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 
 namespace verbum_service_infrastructure.Impl.Service
@@ -231,7 +233,7 @@ namespace verbum_service_infrastructure.Impl.Service
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId)
+        public async Task<PagedList<UserInfo>> GetAllUserInCompany(GetAllUserInCompany request, Guid companyId)
         {
             IQueryable<UserCompany> users = context.UserCompanies
                 .Include(uc => uc.User)
@@ -261,8 +263,10 @@ namespace verbum_service_infrastructure.Impl.Service
             }else users = users.OrderBy(GetSortProperty(request.sortColumn));
 
             List<UserCompany> userList = await users.ToListAsync();
-            List<UserInfo> list = mapper.Map<List<UserInfo>>(users);
-            return list;
+            List<UserInfo> userInfoList = mapper.Map<List<UserInfo>>(userList);
+
+            var pagedList = await PagedList<UserInfo>.CreateAsync(userInfoList.AsQueryable(), request.page, request.pageSize);
+            return pagedList;
         }
 
         private Expression<Func<UserCompany, object>> GetSortProperty(string? sortColumn)
