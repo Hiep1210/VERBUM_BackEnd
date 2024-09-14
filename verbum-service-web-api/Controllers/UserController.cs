@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using verbum_service_application.Service;
-using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
-using verbum_service_domain.Models;
 using verbum_service_infrastructure.Impl.Workflow;
 
 namespace verbum_service.Controllers
@@ -22,8 +19,15 @@ namespace verbum_service.Controllers
             this.updateUserWorkflow = updateUserWorkflow;
         }
 
+        [HttpGet("GetAllUserInCompany/{cid}")]
+        [EnableQuery]
+        public async Task<List<UserInfo>> GetAllUserInCompany(Guid cid)
+        {
+            return await userService.GetAllUserInCompany(cid);
+        }
+
         [HttpGet("GetUserInCompanyById/{uid}/{cid}")]
-        public async Task<UserInfo> Get(Guid uid,Guid cid)
+        public async Task<UserInfo> GetUserInCompanyById(Guid uid,Guid cid)
         {
             return await userService.GetUserInCompanyById(uid,cid);
         }

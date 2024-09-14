@@ -11,9 +11,11 @@ using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
-using Newtonsoft.Json.Linq;
 using Microsoft.EntityFrameworkCore.Storage;
 using AutoMapper;
+using verbum_service_infrastructure.PagedList;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 
 namespace verbum_service_infrastructure.Impl.Service
@@ -229,6 +231,32 @@ namespace verbum_service_infrastructure.Impl.Service
             }
             userCompany.Status = userCompany.Status == UserStatus.DEACTIVATE.ToString() ? UserStatus.ACTIVE.ToString() : UserStatus.DEACTIVATE.ToString();
             await context.SaveChangesAsync();
+        }
+
+        public async Task<List<UserInfo>> GetAllUserInCompany(Guid companyId)
+        {
+            List<UserCompany> userCompany = await context.UserCompanies
+                .Include(uc => uc.User)
+                .Where(uc => uc.CompanyId == companyId).ToListAsync();
+            if (userCompany == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
+            }
+            List<UserInfo> userInfo = mapper.Map<List<UserInfo>>(userCompany);
+            return userInfo;
+        }
+
+        private Expression<Func<UserCompany, object>> GetSortProperty(string? sortColumn)
+        {
+            return sortColumn?.ToLower() switch
+            {
+                "name" => userCompany => userCompany.User.Name,
+                "email" => userCompany => userCompany.User.Email,
+                "role" => userCompany => userCompany.Role,
+                "createdat" => userCompany => userCompany.User.CreatedAt,
+                "status" => userCompany => userCompany.Status,
+                _ => userCompany => userCompany.UserId
+            };
         }
     }
 }
