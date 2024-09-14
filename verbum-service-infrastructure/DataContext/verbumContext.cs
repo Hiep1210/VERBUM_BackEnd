@@ -413,6 +413,8 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.Property(e => e.Role).HasColumnName("role");
 
+                entity.Property(e => e.Status).HasColumnName("status");
+
                 entity.Property(e => e.UserId).HasColumnName("user_id");
 
                 entity.HasOne(d => d.Company)

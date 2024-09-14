@@ -48,9 +48,11 @@ namespace VNH.Infrastructure
 
             //workflow dependency
             services.AddScoped<CreateUserWorkflow>();
+            services.AddScoped<UpdateUserWorkflow>();
 
             //validation dependency
             services.AddScoped<UserSignUpValidation>();
+            services.AddScoped<UserUpdateValidation>();
 
             services.AddHttpContextAccessor();
 

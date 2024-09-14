@@ -18,5 +18,8 @@ namespace verbum_service_application.Service
         Task<Tokens> ConfirmEmail(string email);
         Task SendConfirmationEmail(string email);
         Task<Tokens> LoginGoogleCallback();
+        Task<UserInfo> GetUserInCompanyById(Guid userId, Guid companyId);
+        Task UpdateUser(UserUpdate userUpdate);
+        Task UpdateUserCompanyStatus(Guid userId, Guid companyId);
     }
 }

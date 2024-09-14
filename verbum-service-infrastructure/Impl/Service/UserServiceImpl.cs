@@ -11,21 +11,27 @@ using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
+using Newtonsoft.Json.Linq;
+using Microsoft.EntityFrameworkCore.Storage;
+using AutoMapper;
+
 
 namespace verbum_service_infrastructure.Impl.Service
 {
     public class UserServiceImpl : UserService
     {
         private readonly verbumContext context;
+        private readonly IMapper mapper;
         private readonly TokenService tokenService;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly MailService mailService;
-        public UserServiceImpl(verbumContext context, TokenService tokenService, IHttpContextAccessor httpContextAccessor, MailService mailService)
+        public UserServiceImpl(verbumContext context, TokenService tokenService, IHttpContextAccessor httpContextAccessor, MailService mailService, IMapper mapper)
         {
             this.context = context;
             this.tokenService = tokenService;
             this.httpContextAccessor = httpContextAccessor;
             this.mailService = mailService;
+            this.mapper = mapper;
         }
         public async Task SignUp(User user)
         {
@@ -175,6 +181,54 @@ namespace verbum_service_infrastructure.Impl.Service
             Tokens newTokens = tokenService.GenerateTokens(oldUser);
             await tokenService.UpdateRefreshToken(oldUser.TokenId ?? 0, newTokens.RefreshToken);
             return newTokens;
+        }
+
+        public async Task<UserInfo> GetUserInCompanyById(Guid userId, Guid companyId)
+        {
+            UserCompany userCompany = await context.UserCompanies
+                .Include(uc => uc.User)
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.CompanyId == companyId);
+            if(userCompany == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND,"UserCompany"));
+            }
+            UserInfo userInfo = mapper.Map<UserInfo>(userCompany);
+            return userInfo;
+        }
+
+        public async Task UpdateUser(UserUpdate request)
+        {
+            using (IDbContextTransaction transaction = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    User user = await context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId);
+                    UserCompany userCompany = await context.UserCompanies.FirstOrDefaultAsync(u => u.UserId == request.UserId && u.CompanyId == request.CompanyId);
+                    user.Name = request.Data.Name;
+                    user.Email = request.Data.Email;
+                    user.UpdatedAt = DateTime.Now;
+                    userCompany.Role = request.Data.Role;
+                    //update relevancy
+                    await context.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+
+        public async Task UpdateUserCompanyStatus(Guid userId, Guid companyId)
+        {
+            UserCompany userCompany = await context.UserCompanies.FirstOrDefaultAsync(u => u.UserId == userId && u.CompanyId == companyId);
+            if (userCompany == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
+            }
+            userCompany.Status = userCompany.Status == UserStatus.DEACTIVATE.ToString() ? UserStatus.ACTIVE.ToString() : UserStatus.DEACTIVATE.ToString();
+            await context.SaveChangesAsync();
         }
     }
 }
