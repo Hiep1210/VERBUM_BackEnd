@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -14,6 +14,7 @@ using verbum_service_infrastructure.DataContext;
 using Newtonsoft.Json.Linq;
 using Microsoft.EntityFrameworkCore.Storage;
 using AutoMapper;
+
 
 namespace verbum_service_infrastructure.Impl.Service
 {
@@ -36,7 +37,7 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             context.Users.Add(user);
             await context.SaveChangesAsync();
-            await SendConfirmationEmail(user.Email);
+            _ = Task.Run(() => SendConfirmationEmail(user.Email));
         }
         public async Task SendConfirmationEmail(string email)
         {
