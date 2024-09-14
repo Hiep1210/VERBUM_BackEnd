@@ -43,12 +43,15 @@ namespace VNH.Infrastructure
             //service dependency
             services.AddDbContext<verbumContext>(options =>
             options.UseNpgsql(SystemConfig.CONNECTION_STRING));
+            services.AddScoped<CurrentUser>();
             services.AddScoped<UserService, UserServiceImpl>();
             services.AddScoped<TokenService, TokenServiceImpl>();
+            services.AddScoped<CompanyService, CompanyServiceImpl>();
 
             //workflow dependency
             services.AddScoped<CreateUserWorkflow>();
             services.AddScoped<UpdateUserWorkflow>();
+            services.AddScoped<CreateCompanyWorkflow>();
 
             //validation dependency
             services.AddScoped<UserSignUpValidation>();
