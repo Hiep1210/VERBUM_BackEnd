@@ -16,25 +16,20 @@ using AutoMapper;
 using verbum_service_infrastructure.PagedList;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Lombok.NET;
 
 
 namespace verbum_service_infrastructure.Impl.Service
+
 {
-    public class UserServiceImpl : UserService
+    [RequiredArgsConstructor]
+    public partial class UserServiceImpl : UserService
     {
         private readonly verbumContext context;
         private readonly IMapper mapper;
         private readonly TokenService tokenService;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly MailService mailService;
-        public UserServiceImpl(verbumContext context, TokenService tokenService, IHttpContextAccessor httpContextAccessor, MailService mailService, IMapper mapper)
-        {
-            this.context = context;
-            this.tokenService = tokenService;
-            this.httpContextAccessor = httpContextAccessor;
-            this.mailService = mailService;
-            this.mapper = mapper;
-        }
         public async Task SignUp(User user)
         {
             context.Users.Add(user);

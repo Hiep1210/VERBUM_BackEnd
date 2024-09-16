@@ -34,7 +34,6 @@ namespace verbum_service_infrastructure.DataContext
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UserCompany> UserCompanies { get; set; } = null!;
         public virtual DbSet<UserJob> UserJobs { get; set; } = null!;
-        public virtual DbSet<UserPermission> UserPermissions { get; set; } = null!;
         public virtual DbSet<Workflow> Workflows { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -179,6 +178,27 @@ namespace verbum_service_infrastructure.DataContext
                 entity.Property(e => e.Entity).HasColumnName("entity");
 
                 entity.Property(e => e.PermissionName).HasColumnName("permission_name");
+
+                entity.HasMany(d => d.UserCompanies)
+                    .WithMany(p => p.PermissionNames)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "UserPermission",
+                        l => l.HasOne<UserCompany>().WithMany().HasForeignKey("UserCompanyId").HasConstraintName("user_permission_user_company_fk"),
+                        r => r.HasOne<Permission>().WithMany().HasForeignKey("PermissionNameId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("role_permission_permission_name_id_foreign"),
+                        j =>
+                        {
+                            j.HasKey("PermissionNameId", "UserCompanyId").HasName("user_permission_pk");
+
+                            j.ToTable("user_permission");
+
+                            j.HasIndex(new[] { "PermissionNameId" }, "user_permission_permission_name_id_idx");
+
+                            j.HasIndex(new[] { "UserCompanyId" }, "user_permission_user_company_id_idx");
+
+                            j.IndexerProperty<int>("PermissionNameId").HasColumnName("permission_name_id");
+
+                            j.IndexerProperty<int>("UserCompanyId").HasColumnName("user_company_id");
+                        });
             });
 
             modelBuilder.Entity<Project>(entity =>
@@ -556,34 +576,6 @@ namespace verbum_service_infrastructure.DataContext
                     .HasForeignKey(d => d.WorkflowId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("user_job_workflow_fk");
-            });
-
-            modelBuilder.Entity<UserPermission>(entity =>
-            {
-                entity.ToTable("user_permission");
-
-                entity.HasIndex(e => e.PermissionNameId, "user_permission_permission_name_id_idx");
-
-                entity.HasIndex(e => e.UserCompanyId, "user_permission_user_company_id_idx");
-
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
-
-                entity.Property(e => e.PermissionNameId).HasColumnName("permission_name_id");
-
-                entity.Property(e => e.UserCompanyId).HasColumnName("user_company_id");
-
-                entity.HasOne(d => d.PermissionName)
-                    .WithMany(p => p.UserPermissions)
-                    .HasForeignKey(d => d.PermissionNameId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("role_permission_permission_name_id_foreign");
-
-                entity.HasOne(d => d.UserCompany)
-                    .WithMany(p => p.UserPermissions)
-                    .HasForeignKey(d => d.UserCompanyId)
-                    .HasConstraintName("user_permission_user_company_fk");
             });
 
             modelBuilder.Entity<Workflow>(entity =>
