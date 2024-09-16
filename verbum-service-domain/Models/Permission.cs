@@ -7,7 +7,7 @@ namespace verbum_service_domain.Models
     {
         public Permission()
         {
-            UserPermissions = new HashSet<UserPermission>();
+            UserCompanies = new HashSet<UserCompany>();
         }
 
         public int Id { get; set; }
@@ -15,6 +15,6 @@ namespace verbum_service_domain.Models
         public string Action { get; set; } = null!;
         public string Entity { get; set; } = null!;
 
-        public virtual ICollection<UserPermission> UserPermissions { get; set; }
+        public virtual ICollection<UserCompany> UserCompanies { get; set; }
     }
 }
