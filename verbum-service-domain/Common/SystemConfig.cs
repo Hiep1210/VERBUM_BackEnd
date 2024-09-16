@@ -14,5 +14,6 @@ namespace verbum_service_domain.Common
         public const int ACCESS_TOKEN_LIFE = 1; //hour
         public const int REFRESH_TOKEN_LIFE = 14; //days
         public const string DOMAIN = "https://localhost:8000/api/";
+        public const string FE_DOMAIN = "http://localhost:3000";
     }
 }
