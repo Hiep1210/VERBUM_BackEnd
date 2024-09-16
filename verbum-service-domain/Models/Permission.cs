@@ -10,10 +10,10 @@ namespace verbum_service_domain.Models
             UserCompanies = new HashSet<UserCompany>();
         }
 
-        public int Id { get; set; }
         public string PermissionName { get; set; } = null!;
         public string Action { get; set; } = null!;
         public string Entity { get; set; } = null!;
+        public int Id { get; set; }
 
         public virtual ICollection<UserCompany> UserCompanies { get; set; }
     }

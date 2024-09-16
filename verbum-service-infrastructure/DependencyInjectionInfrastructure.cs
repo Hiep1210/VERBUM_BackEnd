@@ -46,6 +46,7 @@ namespace VNH.Infrastructure
             services.AddScoped<UserService, UserServiceImpl>();
             services.AddScoped<TokenService, TokenServiceImpl>();
             services.AddScoped<CompanyService, CompanyServiceImpl>();
+            services.AddScoped<PermissionService, PermissionServiceImpl>();
 
             //workflow dependency
             services.AddScoped<CreateUserWorkflow>();

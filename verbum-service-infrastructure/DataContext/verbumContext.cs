@@ -170,8 +170,8 @@ namespace verbum_service_infrastructure.DataContext
                 entity.ToTable("permission");
 
                 entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                    .HasColumnName("id")
+                    .UseIdentityAlwaysColumn();
 
                 entity.Property(e => e.Action).HasColumnName("action");
 
@@ -184,7 +184,7 @@ namespace verbum_service_infrastructure.DataContext
                     .UsingEntity<Dictionary<string, object>>(
                         "UserPermission",
                         l => l.HasOne<UserCompany>().WithMany().HasForeignKey("UserCompanyId").HasConstraintName("user_permission_user_company_fk"),
-                        r => r.HasOne<Permission>().WithMany().HasForeignKey("PermissionNameId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("role_permission_permission_name_id_foreign"),
+                        r => r.HasOne<Permission>().WithMany().HasForeignKey("PermissionNameId").HasConstraintName("user_permission_permission_fk"),
                         j =>
                         {
                             j.HasKey("PermissionNameId", "UserCompanyId").HasName("user_permission_pk");

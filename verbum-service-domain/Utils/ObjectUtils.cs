@@ -4,7 +4,7 @@ namespace verbum_service_domain.Utils
 {
     public class ObjectUtils
     {
-        public static bool IsEmpty(object obj)
+        public static bool IsEmpty(object? obj)
         {
             if (obj == null)
             {

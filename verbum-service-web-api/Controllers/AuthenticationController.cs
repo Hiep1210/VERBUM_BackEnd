@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using verbum_service.Filter;
 using verbum_service_application.Service;
-using verbum_service_domain.Common;
+using verbum_service_domain.Common.Permission;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
 using verbum_service_infrastructure.Impl.Workflow;
@@ -34,7 +35,8 @@ namespace verbum_service.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRole.ADMIN)]
+        [Authorize]
+        [PermissionAuth(Entity.USER, ActionEnum.MANAGE)]
         public IEnumerable<string> Get(int id)
         {
             return new string[] { "value1", "value2" };
