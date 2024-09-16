@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using verbum_service_application.Service;
 using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
@@ -72,10 +73,11 @@ namespace verbum_service.Controllers
             return Ok(await userService.RefreshAccessToken(tokens));
         }
 
-        [HttpGet("confirm-email/{email}")]
+        [HttpGet("confirm-email")]
         [Authorize]
-        public async Task<IActionResult> ConfirmEmail(string email, [FromQuery, Required] string access_token)
+        public async Task<IActionResult> ConfirmEmail([FromQuery, Required] string access_token)
         {
+            string email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
             return Ok(await userService.ConfirmEmail(email)); 
         }
 

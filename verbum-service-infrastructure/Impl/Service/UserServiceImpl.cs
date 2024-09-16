@@ -43,7 +43,7 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             var emailToken = tokenService.GenerateEmailToken(email);
             //send mail
-            string body = await BuildVerificationEmail(SystemConfig.DOMAIN + "auth/confirm-email/" + email + "?access_token="+emailToken);
+            string body = await BuildVerificationEmail(SystemConfig.FE_DOMAIN + "/confirm-email/" + "?access_token=" + emailToken);
             await mailService.SendEmailAsync(email, string.Format(MailConstant.SUBJECT, email), body);
         }
         private async Task<string> BuildVerificationEmail(string link)
