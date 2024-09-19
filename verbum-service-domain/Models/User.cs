@@ -7,6 +7,7 @@ namespace verbum_service_domain.Models
     {
         public User()
         {
+            Revelancies = new HashSet<Revelancy>();
             UserCompanies = new HashSet<UserCompany>();
             UserJobs = new HashSet<UserJob>();
         }
@@ -24,6 +25,7 @@ namespace verbum_service_domain.Models
 
         public virtual Image? Image { get; set; }
         public virtual RefreshToken? Token { get; set; }
+        public virtual ICollection<Revelancy> Revelancies { get; set; }
         public virtual ICollection<UserCompany> UserCompanies { get; set; }
         public virtual ICollection<UserJob> UserJobs { get; set; }
     }

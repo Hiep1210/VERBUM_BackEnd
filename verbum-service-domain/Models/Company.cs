@@ -7,7 +7,7 @@ namespace verbum_service_domain.Models
     {
         public Company()
         {
-            CompanyProjects = new HashSet<CompanyProject>();
+            Projects = new HashSet<Project>();
             UserCompanies = new HashSet<UserCompany>();
         }
 
@@ -15,7 +15,7 @@ namespace verbum_service_domain.Models
         public string Name { get; set; } = null!;
         public bool Status { get; set; }
 
-        public virtual ICollection<CompanyProject> CompanyProjects { get; set; }
+        public virtual ICollection<Project> Projects { get; set; }
         public virtual ICollection<UserCompany> UserCompanies { get; set; }
     }
 }

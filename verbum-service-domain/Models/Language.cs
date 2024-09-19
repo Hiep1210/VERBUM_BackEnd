@@ -10,10 +10,13 @@ namespace verbum_service_domain.Models
             Projects = new HashSet<Project>();
         }
 
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
+        public string LanguageName { get; set; } = null!;
+        public string LanguageId { get; set; } = null!;
 
-        public virtual TargetLanguage IdNavigation { get; set; } = null!;
+        public virtual Job? Job { get; set; }
+        public virtual ProjectTargetLanguage? ProjectTargetLanguage { get; set; }
+        public virtual Revelancy? RevelancySourceLanguage { get; set; }
+        public virtual Revelancy? RevelancyTargetLanguage { get; set; }
         public virtual ICollection<Project> Projects { get; set; }
     }
 }

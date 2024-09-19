@@ -9,7 +9,6 @@ using verbum_service_application.Service;
 using verbum_service_application.Workflow;
 using verbum_service_domain.Common;
 using verbum_service_domain.DTO.Request;
-using verbum_service_domain.Models;
 using verbum_service_domain.Models.Mail;
 using verbum_service_infrastructure.DataContext;
 using verbum_service_infrastructure.Impl.Service;
@@ -43,14 +42,21 @@ namespace VNH.Infrastructure
             //service dependency
             services.AddDbContext<verbumContext>(options =>
             options.UseNpgsql(SystemConfig.CONNECTION_STRING));
+            services.AddScoped<CurrentUser>();
             services.AddScoped<UserService, UserServiceImpl>();
             services.AddScoped<TokenService, TokenServiceImpl>();
+            services.AddScoped<CompanyService, CompanyServiceImpl>();
+            services.AddScoped<PermissionService, PermissionServiceImpl>();
 
             //workflow dependency
             services.AddScoped<CreateUserWorkflow>();
+            services.AddScoped<UpdateUserWorkflow>();
+            services.AddScoped<CreateCompanyWorkflow>();
 
             //validation dependency
             services.AddScoped<UserSignUpValidation>();
+            services.AddScoped<UserUpdateValidation>();
+            services.AddScoped<CreateCompanyValidation>();
 
             services.AddHttpContextAccessor();
 

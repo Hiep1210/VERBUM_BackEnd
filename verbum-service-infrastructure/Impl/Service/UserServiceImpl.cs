@@ -11,22 +11,25 @@ using verbum_service_domain.DTO.Response;
 using verbum_service_domain.Models;
 using verbum_service_domain.Utils;
 using verbum_service_infrastructure.DataContext;
+using Microsoft.EntityFrameworkCore.Storage;
+using AutoMapper;
+using verbum_service_infrastructure.PagedList;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Lombok.NET;
+
 
 namespace verbum_service_infrastructure.Impl.Service
+
 {
-    public class UserServiceImpl : UserService
+    [RequiredArgsConstructor]
+    public partial class UserServiceImpl : UserService
     {
         private readonly verbumContext context;
+        private readonly IMapper mapper;
         private readonly TokenService tokenService;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly MailService mailService;
-        public UserServiceImpl(verbumContext context, TokenService tokenService, IHttpContextAccessor httpContextAccessor, MailService mailService)
-        {
-            this.context = context;
-            this.tokenService = tokenService;
-            this.httpContextAccessor = httpContextAccessor;
-            this.mailService = mailService;
-        }
         public async Task SignUp(User user)
         {
             context.Users.Add(user);
@@ -37,7 +40,7 @@ namespace verbum_service_infrastructure.Impl.Service
         {
             var emailToken = tokenService.GenerateEmailToken(email);
             //send mail
-            string body = await BuildVerificationEmail(SystemConfig.DOMAIN + "auth/confirm-email/" + email + "?access_token="+emailToken);
+            string body = await BuildVerificationEmail(SystemConfig.FE_DOMAIN + "/confirm-email/" + "?access_token=" + emailToken);
             await mailService.SendEmailAsync(email, string.Format(MailConstant.SUBJECT, email), body);
         }
         private async Task<string> BuildVerificationEmail(string link)
@@ -175,6 +178,80 @@ namespace verbum_service_infrastructure.Impl.Service
             Tokens newTokens = tokenService.GenerateTokens(oldUser);
             await tokenService.UpdateRefreshToken(oldUser.TokenId ?? 0, newTokens.RefreshToken);
             return newTokens;
+        }
+
+        public async Task<UserInfo> GetUserInCompanyById(Guid userId, Guid companyId)
+        {
+            UserCompany userCompany = await context.UserCompanies
+                .Include(uc => uc.User)
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.CompanyId == companyId);
+            if(userCompany == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND,"UserCompany"));
+            }
+            UserInfo userInfo = mapper.Map<UserInfo>(userCompany);
+            return userInfo;
+        }
+
+        public async Task UpdateUser(UserUpdate request)
+        {
+            using (IDbContextTransaction transaction = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    User user = await context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId);
+                    UserCompany userCompany = await context.UserCompanies.FirstOrDefaultAsync(u => u.UserId == request.UserId && u.CompanyId == request.CompanyId);
+                    user.Name = request.Data.Name;
+                    user.Email = request.Data.Email;
+                    user.UpdatedAt = DateTime.Now;
+                    userCompany.Role = request.Data.Role;
+                    //update relevancy
+                    await context.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+
+        public async Task UpdateUserCompanyStatus(Guid userId, Guid companyId)
+        {
+            UserCompany userCompany = await context.UserCompanies.FirstOrDefaultAsync(u => u.UserId == userId && u.CompanyId == companyId);
+            if (userCompany == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
+            }
+            userCompany.Status = userCompany.Status == UserStatus.DEACTIVATE.ToString() ? UserStatus.ACTIVE.ToString() : UserStatus.DEACTIVATE.ToString();
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<List<UserInfo>> GetAllUserInCompany(Guid companyId)
+        {
+            List<UserCompany> userCompany = await context.UserCompanies
+                .Include(uc => uc.User)
+                .Where(uc => uc.CompanyId == companyId).ToListAsync();
+            if (userCompany == null)
+            {
+                throw new BusinessException(AlertMessage.Alert(ValidationAlertCode.NOT_FOUND, "UserCompany"));
+            }
+            List<UserInfo> userInfo = mapper.Map<List<UserInfo>>(userCompany);
+            return userInfo;
+        }
+
+        private Expression<Func<UserCompany, object>> GetSortProperty(string? sortColumn)
+        {
+            return sortColumn?.ToLower() switch
+            {
+                "name" => userCompany => userCompany.User.Name,
+                "email" => userCompany => userCompany.User.Email,
+                "role" => userCompany => userCompany.Role,
+                "createdat" => userCompany => userCompany.User.CreatedAt,
+                "status" => userCompany => userCompany.Status,
+                _ => userCompany => userCompany.UserId
+            };
         }
     }
 }

@@ -2,9 +2,14 @@
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Cmp;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Security.Claims;
+using verbum_service.Filter;
 using verbum_service_application.Service;
-using verbum_service_domain.Common;
+using verbum_service_domain.Common.ErrorModel;
+using verbum_service_domain.Common.Permission;
 using verbum_service_domain.DTO.Request;
 using verbum_service_domain.DTO.Response;
 using verbum_service_infrastructure.Impl.Workflow;
@@ -33,7 +38,8 @@ namespace verbum_service.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRole.ADMIN)]
+        [Authorize]
+        [PermissionAuth(Entity.USER, ActionEnum.MANAGE)]
         public IEnumerable<string> Get(int id)
         {
             return new string[] { "value1", "value2" };
@@ -41,12 +47,18 @@ namespace verbum_service.Controllers
 
         // POST api/<AuthenticationController>
         [HttpPost("login")]
+        [ProducesResponseType(typeof(Tokens), 200)]
+        [ProducesResponseType(typeof(ErrorObject), 400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
             return Ok(await userService.Login(userLogin));
         }
 
         [HttpGet("google-login")]
+        [ProducesResponseType(typeof(Challenge), 200)]
+        [ProducesResponseType(typeof(ErrorObject), 200)]
+        [ProducesResponseType(500)]
         public IActionResult LoginGoogle()
         {
             return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/google-callback" }, 
@@ -54,12 +66,18 @@ namespace verbum_service.Controllers
         }
 
         [HttpGet("google-callback")]
+        [ProducesResponseType(typeof(Tokens), 200)]
+        [ProducesResponseType(typeof(ErrorObject), 200)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GoogleCallback()
         {
             return Ok(await userService.LoginGoogleCallback());
         }
 
         [HttpPost("signup")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(ErrorObject), 200)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> SignUp([FromBody] UserSignUp userSignUp)
         {
             await createUserWorkflow.process(userSignUp);
@@ -67,19 +85,29 @@ namespace verbum_service.Controllers
         }
 
         [HttpPost("refresh-token")]
+        [ProducesResponseType(typeof(Tokens), 200)]
+        [ProducesResponseType(typeof(ErrorObject), 200)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> Refresh([FromBody] Tokens tokens)
         {
             return Ok(await userService.RefreshAccessToken(tokens));
         }
 
-        [HttpGet("confirm-email/{email}")]
+        [HttpGet("confirm-email")]
         [Authorize]
-        public async Task<IActionResult> ConfirmEmail(string email, [FromQuery, Required] string access_token)
+        [ProducesResponseType(typeof(Tokens), 200)]
+        [ProducesResponseType(typeof(ErrorObject), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ConfirmEmail([FromQuery, Required] string access_token)
         {
+            string email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
             return Ok(await userService.ConfirmEmail(email)); 
         }
 
         [HttpPost("resend-email")]
+        [ProducesResponseType(typeof(Tokens), 200)]
+        [ProducesResponseType(typeof(ErrorObject), 200)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> ResendVerficationEmail(string email)
         {
             await userService.SendConfirmationEmail(email);

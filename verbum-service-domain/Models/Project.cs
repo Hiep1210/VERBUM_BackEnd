@@ -7,9 +7,8 @@ namespace verbum_service_domain.Models
     {
         public Project()
         {
-            CompanyProjects = new HashSet<CompanyProject>();
             Jobs = new HashSet<Job>();
-            TargetLanguages = new HashSet<TargetLanguage>();
+            ProjectTargetLanguages = new HashSet<ProjectTargetLanguage>();
         }
 
         public Guid Id { get; set; }
@@ -41,7 +40,7 @@ namespace verbum_service_domain.Models
         /// <summary>
         /// The original language all jobs in this project
         /// </summary>
-        public int SourceLanguageId { get; set; }
+        public string SourceLanguageId { get; set; } = null!;
         /// <summary>
         /// The settings that all jobs in this project have to follow
         /// </summary>
@@ -50,12 +49,13 @@ namespace verbum_service_domain.Models
         /// The QA options that all jobs in this project have to follow
         /// </summary>
         public int ProjectQaId { get; set; }
+        public Guid? CompanyId { get; set; }
 
+        public virtual Company? Company { get; set; }
         public virtual ProjectQa ProjectQa { get; set; } = null!;
         public virtual ProjectSetting ProjectSetting { get; set; } = null!;
         public virtual Language SourceLanguage { get; set; } = null!;
-        public virtual ICollection<CompanyProject> CompanyProjects { get; set; }
         public virtual ICollection<Job> Jobs { get; set; }
-        public virtual ICollection<TargetLanguage> TargetLanguages { get; set; }
+        public virtual ICollection<ProjectTargetLanguage> ProjectTargetLanguages { get; set; }
     }
 }

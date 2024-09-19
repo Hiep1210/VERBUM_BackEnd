@@ -18,7 +18,7 @@ namespace verbum_service_infrastructure.DataContext
         }
 
         public virtual DbSet<Company> Companies { get; set; } = null!;
-        public virtual DbSet<CompanyProject> CompanyProjects { get; set; } = null!;
+        public virtual DbSet<Domain> Domains { get; set; } = null!;
         public virtual DbSet<Image> Images { get; set; } = null!;
         public virtual DbSet<Job> Jobs { get; set; } = null!;
         public virtual DbSet<Language> Languages { get; set; } = null!;
@@ -26,13 +26,14 @@ namespace verbum_service_infrastructure.DataContext
         public virtual DbSet<Project> Projects { get; set; } = null!;
         public virtual DbSet<ProjectQa> ProjectQas { get; set; } = null!;
         public virtual DbSet<ProjectSetting> ProjectSettings { get; set; } = null!;
+        public virtual DbSet<ProjectTargetLanguage> ProjectTargetLanguages { get; set; } = null!;
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public virtual DbSet<Revelancy> Revelancies { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
-        public virtual DbSet<TargetLanguage> TargetLanguages { get; set; } = null!;
+        public virtual DbSet<SubDomain> SubDomains { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UserCompany> UserCompanies { get; set; } = null!;
         public virtual DbSet<UserJob> UserJobs { get; set; } = null!;
-        public virtual DbSet<UserPermission> UserPermissions { get; set; } = null!;
         public virtual DbSet<Workflow> Workflows { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,29 +53,17 @@ namespace verbum_service_infrastructure.DataContext
                 entity.Property(e => e.Status).HasColumnName("status");
             });
 
-            modelBuilder.Entity<CompanyProject>(entity =>
+            modelBuilder.Entity<Domain>(entity =>
             {
-                entity.ToTable("company_project");
+                entity.ToTable("domain");
 
-                entity.Property(e => e.Id)
+                entity.Property(e => e.DomainId)
                     .ValueGeneratedNever()
-                    .HasColumnName("id");
+                    .HasColumnName("domain_id");
 
-                entity.Property(e => e.CompanyId).HasColumnName("company_id");
-
-                entity.Property(e => e.ProjectId).HasColumnName("project_id");
-
-                entity.HasOne(d => d.Company)
-                    .WithMany(p => p.CompanyProjects)
-                    .HasForeignKey(d => d.CompanyId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("company_project_company_id_foreign");
-
-                entity.HasOne(d => d.Project)
-                    .WithMany(p => p.CompanyProjects)
-                    .HasForeignKey(d => d.ProjectId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("company_project_project_id_foreign");
+                entity.Property(e => e.DomainName)
+                    .HasColumnType("character varying")
+                    .HasColumnName("domain_name");
             });
 
             modelBuilder.Entity<Image>(entity =>
@@ -97,6 +86,9 @@ namespace verbum_service_infrastructure.DataContext
             modelBuilder.Entity<Job>(entity =>
             {
                 entity.ToTable("job");
+
+                entity.HasIndex(e => e.TargetLanguageId, "job_unique")
+                    .IsUnique();
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
@@ -138,8 +130,8 @@ namespace verbum_service_infrastructure.DataContext
                     .HasComment("The status of the job");
 
                 entity.Property(e => e.TargetLanguageId)
-                    .HasColumnName("target_language_id")
-                    .HasComment("The language of the translation");
+                    .HasColumnType("character varying")
+                    .HasColumnName("target_language_id");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("timestamp(0) without time zone")
@@ -155,23 +147,22 @@ namespace verbum_service_infrastructure.DataContext
                     .HasForeignKey(d => d.ProjectId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("job_project_id_foreign");
+
+                entity.HasOne(d => d.TargetLanguage)
+                    .WithOne(p => p.Job)
+                    .HasForeignKey<Job>(d => d.TargetLanguageId)
+                    .HasConstraintName("job_language_fk");
             });
 
             modelBuilder.Entity<Language>(entity =>
             {
                 entity.ToTable("language");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.LanguageId)
+                    .HasColumnType("character varying")
+                    .HasColumnName("language_id");
 
-                entity.Property(e => e.Name).HasColumnName("name");
-
-                entity.HasOne(d => d.IdNavigation)
-                    .WithOne(p => p.Language)
-                    .HasForeignKey<Language>(d => d.Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("language_id_foreign");
+                entity.Property(e => e.LanguageName).HasColumnName("language_name");
             });
 
             modelBuilder.Entity<Permission>(entity =>
@@ -179,14 +170,35 @@ namespace verbum_service_infrastructure.DataContext
                 entity.ToTable("permission");
 
                 entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                    .HasColumnName("id")
+                    .UseIdentityAlwaysColumn();
 
                 entity.Property(e => e.Action).HasColumnName("action");
 
                 entity.Property(e => e.Entity).HasColumnName("entity");
 
                 entity.Property(e => e.PermissionName).HasColumnName("permission_name");
+
+                entity.HasMany(d => d.UserCompanies)
+                    .WithMany(p => p.PermissionNames)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "UserPermission",
+                        l => l.HasOne<UserCompany>().WithMany().HasForeignKey("UserCompanyId").HasConstraintName("user_permission_user_company_fk"),
+                        r => r.HasOne<Permission>().WithMany().HasForeignKey("PermissionNameId").HasConstraintName("user_permission_permission_fk"),
+                        j =>
+                        {
+                            j.HasKey("PermissionNameId", "UserCompanyId").HasName("user_permission_pk");
+
+                            j.ToTable("user_permission");
+
+                            j.HasIndex(new[] { "PermissionNameId" }, "user_permission_permission_name_id_idx");
+
+                            j.HasIndex(new[] { "UserCompanyId" }, "user_permission_user_company_id_idx");
+
+                            j.IndexerProperty<int>("PermissionNameId").HasColumnName("permission_name_id");
+
+                            j.IndexerProperty<int>("UserCompanyId").HasColumnName("user_company_id");
+                        });
             });
 
             modelBuilder.Entity<Project>(entity =>
@@ -200,6 +212,8 @@ namespace verbum_service_infrastructure.DataContext
                 entity.Property(e => e.CilentName)
                     .HasColumnName("cilent_name")
                     .HasComment("Name of the client that all jobs in this project belongs to");
+
+                entity.Property(e => e.CompanyId).HasColumnName("company_id");
 
                 entity.Property(e => e.CreatedDate)
                     .HasColumnType("timestamp(0) without time zone")
@@ -231,12 +245,19 @@ namespace verbum_service_infrastructure.DataContext
                     .HasComment("The settings that all jobs in this project have to follow");
 
                 entity.Property(e => e.SourceLanguageId)
+                    .HasColumnType("character varying")
                     .HasColumnName("source_language_id")
                     .HasComment("The original language all jobs in this project");
 
                 entity.Property(e => e.SubDomain)
                     .HasColumnName("sub_domain")
                     .HasComment("The sub-domain of project's domain");
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.Projects)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("project_company_fk");
 
                 entity.HasOne(d => d.ProjectQa)
                     .WithMany(p => p.Projects)
@@ -253,8 +274,8 @@ namespace verbum_service_infrastructure.DataContext
                 entity.HasOne(d => d.SourceLanguage)
                     .WithMany(p => p.Projects)
                     .HasForeignKey(d => d.SourceLanguageId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("project_source_language_id_foreign");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("project_language_fk");
             });
 
             modelBuilder.Entity<ProjectQa>(entity =>
@@ -287,6 +308,34 @@ namespace verbum_service_infrastructure.DataContext
                 entity.Property(e => e.Workflow).HasColumnName("workflow");
             });
 
+            modelBuilder.Entity<ProjectTargetLanguage>(entity =>
+            {
+                entity.ToTable("project_target_language");
+
+                entity.HasIndex(e => e.LanguageId, "project_target_language_unique")
+                    .IsUnique();
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .UseIdentityAlwaysColumn();
+
+                entity.Property(e => e.LanguageId)
+                    .HasColumnType("character varying")
+                    .HasColumnName("language_id");
+
+                entity.Property(e => e.ProjectId).HasColumnName("project_id");
+
+                entity.HasOne(d => d.Language)
+                    .WithOne(p => p.ProjectTargetLanguage)
+                    .HasForeignKey<ProjectTargetLanguage>(d => d.LanguageId)
+                    .HasConstraintName("project_target_language_language_fk");
+
+                entity.HasOne(d => d.Project)
+                    .WithMany(p => p.ProjectTargetLanguages)
+                    .HasForeignKey(d => d.ProjectId)
+                    .HasConstraintName("project_target_language_project_fk");
+            });
+
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(e => e.TokenId)
@@ -311,6 +360,57 @@ namespace verbum_service_infrastructure.DataContext
                     .HasColumnName("token_content");
             });
 
+            modelBuilder.Entity<Revelancy>(entity =>
+            {
+                entity.ToTable("revelancy");
+
+                entity.HasIndex(e => e.SourceLanguageId, "revelancy_unique")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.TargetLanguageId, "revelancy_unique_1")
+                    .IsUnique();
+
+                entity.Property(e => e.RevelancyId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("revelancy_id");
+
+                entity.Property(e => e.SourceLanguageId)
+                    .HasColumnType("character varying")
+                    .HasColumnName("source_language_id");
+
+                entity.Property(e => e.SubDomainId).HasColumnName("sub_domain_id");
+
+                entity.Property(e => e.TargetLanguageId)
+                    .HasColumnType("character varying")
+                    .HasColumnName("target_language_id");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.HasOne(d => d.SourceLanguage)
+                    .WithOne(p => p.RevelancySourceLanguage)
+                    .HasForeignKey<Revelancy>(d => d.SourceLanguageId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("revelancy_language_fk");
+
+                entity.HasOne(d => d.SubDomain)
+                    .WithMany(p => p.Revelancies)
+                    .HasForeignKey(d => d.SubDomainId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("revelancy_sub_domain_fk");
+
+                entity.HasOne(d => d.TargetLanguage)
+                    .WithOne(p => p.RevelancyTargetLanguage)
+                    .HasForeignKey<Revelancy>(d => d.TargetLanguageId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("target_revelancy_language_fk");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Revelancies)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("revelancy_user_fk");
+            });
+
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.HasKey(e => e.Name)
@@ -323,21 +423,27 @@ namespace verbum_service_infrastructure.DataContext
                 entity.Property(e => e.Description).HasColumnName("description");
             });
 
-            modelBuilder.Entity<TargetLanguage>(entity =>
+            modelBuilder.Entity<SubDomain>(entity =>
             {
-                entity.ToTable("target_language");
+                entity.ToTable("sub_domain");
 
-                entity.Property(e => e.Id)
+                entity.HasIndex(e => e.DomainId, "sub_domain_domain_id_idx");
+
+                entity.Property(e => e.SubDomainId)
                     .ValueGeneratedNever()
-                    .HasColumnName("id");
+                    .HasColumnName("sub_domain_id");
 
-                entity.Property(e => e.ProjectId).HasColumnName("project_id");
+                entity.Property(e => e.DomainId).HasColumnName("domain_id");
 
-                entity.HasOne(d => d.Project)
-                    .WithMany(p => p.TargetLanguages)
-                    .HasForeignKey(d => d.ProjectId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("target_language_project_id_foreign");
+                entity.Property(e => e.SubDomainName)
+                    .HasColumnType("character varying")
+                    .HasColumnName("sub_domain_name");
+
+                entity.HasOne(d => d.Domain)
+                    .WithMany(p => p.SubDomains)
+                    .HasForeignKey(d => d.DomainId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("sub_domain_domain_fk");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -403,6 +509,9 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.HasIndex(e => e.CompanyId, "user_company_company_id_idx");
 
+                entity.HasIndex(e => e.Role, "user_company_unique")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.UserId, "user_company_user_id_idx");
 
                 entity.Property(e => e.Id)
@@ -413,6 +522,8 @@ namespace verbum_service_infrastructure.DataContext
 
                 entity.Property(e => e.Role).HasColumnName("role");
 
+                entity.Property(e => e.Status).HasColumnName("status");
+
                 entity.Property(e => e.UserId).HasColumnName("user_id");
 
                 entity.HasOne(d => d.Company)
@@ -422,8 +533,8 @@ namespace verbum_service_infrastructure.DataContext
                     .HasConstraintName("user_company_company_id_foreign");
 
                 entity.HasOne(d => d.RoleNavigation)
-                    .WithMany(p => p.UserCompanies)
-                    .HasForeignKey(d => d.Role)
+                    .WithOne(p => p.UserCompany)
+                    .HasForeignKey<UserCompany>(d => d.Role)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("user_company_role_foreign");
 
@@ -465,34 +576,6 @@ namespace verbum_service_infrastructure.DataContext
                     .HasForeignKey(d => d.WorkflowId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("user_job_workflow_fk");
-            });
-
-            modelBuilder.Entity<UserPermission>(entity =>
-            {
-                entity.ToTable("user_permission");
-
-                entity.HasIndex(e => e.PermissionNameId, "user_permission_permission_name_id_idx");
-
-                entity.HasIndex(e => e.UserCompanyId, "user_permission_user_company_id_idx");
-
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
-
-                entity.Property(e => e.PermissionNameId).HasColumnName("permission_name_id");
-
-                entity.Property(e => e.UserCompanyId).HasColumnName("user_company_id");
-
-                entity.HasOne(d => d.PermissionName)
-                    .WithMany(p => p.UserPermissions)
-                    .HasForeignKey(d => d.PermissionNameId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("role_permission_permission_name_id_foreign");
-
-                entity.HasOne(d => d.UserCompany)
-                    .WithMany(p => p.UserPermissions)
-                    .HasForeignKey(d => d.UserCompanyId)
-                    .HasConstraintName("user_permission_user_company_fk");
             });
 
             modelBuilder.Entity<Workflow>(entity =>
