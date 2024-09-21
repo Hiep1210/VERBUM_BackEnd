@@ -44,7 +44,7 @@ jobs:
         run: chmod +x node_modules/.bin/vitest
 
       - name: Run tests
-        run: npx --no-install vitest run --coverage
+        run: dotnet test --collect:"XPlat Code Coverage" --no-build
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
